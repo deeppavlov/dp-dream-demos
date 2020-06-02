@@ -11,7 +11,7 @@ Runs with docker-compose
 ## Requirements
 
 * [Docker](https://www.docker.com/products/docker-desktop) 
-* [Docker-compose]
+* [Docker-compose](https://docs.docker.com/compose/install/)
 
 ## Running the demo
 
