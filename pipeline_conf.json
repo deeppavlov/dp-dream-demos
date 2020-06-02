@@ -1,0 +1,51 @@
+{"services": {
+    "last_chance_service": {
+        "connector": {
+            "protocol": "python",
+            "class_name": "PredefinedTextConnector",
+            "response_text": "Sorry, something went wrong inside. Please tell me, what did you say."
+        },
+        "state_manager_method": "add_bot_utterance_last_chance",
+        "tags": ["last_chance"]
+    },
+    "timeout_service": {
+        "connector": {
+            "protocol": "python",
+            "class_name": "PredefinedTextConnector",
+            "response_text": "Sorry, I need to think more on that. Let's talk about something else."
+        },
+        "state_manager_method": "add_bot_utterance_last_chance",
+        "tags": ["timeout"]
+    },
+    "annotator": {
+        "connector": {
+            "protocol": "python",
+            "class_name": "PredefinedOutputConnector",
+            "output": {"body": "here are my annotations"}
+        },
+        "state_manager_method": "add_annotation"
+    },
+    "skill": {
+        "connector": {
+            "protocol": "python",
+            "class_name": "PredefinedOutputConnector",
+            "output": [{"text": "Hypotheses1", "confidence": 1}]
+        },
+        "state_manager_method": "add_hypothesis",
+        "previous_services": ["annotator"]
+    },
+    "response_selector": {
+        "connector": {
+            "protocol": "python",
+            "class_name": "ConfidenceResponseSelectorConnector"
+        },
+        "state_manager_method": "add_bot_utterance",
+        "previous_services": ["skill"]
+    }
+},
+"connectors": {}
+}
+
+
+
+

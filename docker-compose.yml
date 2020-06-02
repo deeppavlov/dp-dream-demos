@@ -1,0 +1,20 @@
+services:
+    agent:
+        build:
+            context: ./
+            dockerfile: ./dockerfile
+        container_name: agent
+        depends_on:
+            - mongo
+        ports:
+            - 4242:4242
+        tty: true
+        command: python -m deeppavlov_agent.run_http
+    mongo:
+        command: mongod
+        image: mongo:4.0.0
+        ports:
+            - 27017:27017
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+version: "3.7"
