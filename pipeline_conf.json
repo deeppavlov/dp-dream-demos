@@ -17,30 +17,14 @@
         "state_manager_method": "add_bot_utterance_last_chance",
         "tags": ["timeout"]
     },
-    "annotator": {
-        "connector": {
-            "protocol": "python",
-            "class_name": "PredefinedOutputConnector",
-            "output": {"body": "here are my annotations"}
-        },
-        "state_manager_method": "add_annotation"
-    },
     "skill": {
         "connector": {
-            "protocol": "python",
-            "class_name": "PredefinedOutputConnector",
-            "output": [{"text": "Hypotheses1", "confidence": 1}]
-        },
-        "state_manager_method": "add_hypothesis",
-        "previous_services": ["annotator"]
-    },
-    "response_selector": {
-        "connector": {
-            "protocol": "python",
-            "class_name": "ConfidenceResponseSelectorConnector"
-        },
-        "state_manager_method": "add_bot_utterance",
-        "previous_services": ["skill"]
+		"protocol": "http",
+		"url": "http://192.168.10.110:3000/respond"
+                },
+	"dialog_formatter": "dp_formatters:last_utt_dialog",
+	"response_formatter": "dp_formatters:base_formatter_service",
+	"state_manager_method": "add_bot_utterance"
     }
 },
 "connectors": {}
