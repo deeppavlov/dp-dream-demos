@@ -347,9 +347,7 @@ def base_formatter_service(payload: Dict) -> Dict:
     Used by: dummy_skill_formatter, intent_responder_formatter, transfertransfo_formatter,
     aiml_formatter, alice_formatter, tfidf_formatter
     '''
-
-    logger.info(str(payload))
-    return {"text": payload[0], "confidence": payload[1]}
+    return [{"text": payload[0], "confidence": payload[1], "skill_name": ""}]
 
 
 def simple_formatter_service(payload: List):
