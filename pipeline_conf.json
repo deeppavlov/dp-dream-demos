@@ -20,7 +20,7 @@
     "skill": {
         "connector": {
 		"protocol": "http",
-		"url": "http://192.168.10.110:3000/respond"
+		"url": "http://127.0.0.1:3000/respond"
                 },
 	"dialog_formatter": "dp_formatters:last_utt_dialog",
 	"response_formatter": "dp_formatters:base_formatter_service",
