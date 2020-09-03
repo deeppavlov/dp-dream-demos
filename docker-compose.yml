@@ -9,7 +9,7 @@ services:
         ports:
             - 4242:4242
         tty: true
-        command: python -m deeppavlov_agent.run_http
+        command: python -m deeppavlov_agent.run -ch http_client --cors
     skill:
         build:
             context: ./
