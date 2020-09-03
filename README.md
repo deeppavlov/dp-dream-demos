@@ -1,6 +1,6 @@
-# This is a simplest demo of deeppavlov agent
+# This Is The First AI Assistant Demo Derived From DeepPavlov Dream AI Assistant
 
-It consists of two dummy skills in line alongside with built-in rule based skill selector.
+It consists of two dummy skills and one actual skill from DeepPavlov Dream AI Assistant alongside with built-in rule based skill selector.
 Runs with docker-compose
 
 ## Files content
@@ -21,4 +21,4 @@ docker-compose up --build
 
 Api will run on *localhost:4242/*
 
-All dialogs wlii be saved in **dp-agent** database, running in **mongo** container.
+All dialogs will be saved in **dp-agent** database, running in **mongo** container.
