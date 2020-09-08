@@ -1,33 +1,66 @@
-{"services": {
-    "last_chance_service": {
-        "connector": {
-            "protocol": "python",
-            "class_name": "PredefinedTextConnector",
-            "response_text": "Sorry, something went wrong inside. Please tell me, what did you say."
+{
+    "services": {
+        "last_chance_service": {
+            "connector": {
+                "protocol": "python",
+                "class_name": "PredefinedTextConnector",
+                "response_text": "Sorry, something went wrong inside. Please tell me, what did you say."
+            },
+            "state_manager_method": "add_bot_utterance_last_chance",
+            "tags": [
+                "last_chance"
+            ]
         },
-        "state_manager_method": "add_bot_utterance_last_chance",
-        "tags": ["last_chance"]
-    },
-    "timeout_service": {
-        "connector": {
-            "protocol": "python",
-            "class_name": "PredefinedTextConnector",
-            "response_text": "Sorry, I need to think more on that. Let's talk about something else."
+        "timeout_service": {
+            "connector": {
+                "protocol": "python",
+                "class_name": "PredefinedTextConnector",
+                "response_text": "Sorry, I need to think more on that. Let's talk about something else."
+            },
+            "state_manager_method": "add_bot_utterance_last_chance",
+            "tags": [
+                "timeout"
+            ]
         },
-        "state_manager_method": "add_bot_utterance_last_chance",
-        "tags": ["timeout"]
-    },
-    "skill": {
-        "connector": {
-		"protocol": "http",
-		"url": "http://skill:3000/respond"
+        "skills": {
+            "valentines_day_skill": {
+                "connector": {
+                    "protocol": "http",
+                    "url": "http://valentines_day_skill:3000/respond"
                 },
-	"dialog_formatter": "dp_formatters:last_utt_dialog",
-	"response_formatter": "dp_formatters:base_formatter_service",
-	"state_manager_method": "add_bot_utterance"
-    }
-},
-"connectors": {}
+                "dialog_formatter": "dp_formatters:last_utt_dialog",
+                "response_formatter": "dp_formatters:base_formatter_service",
+                "state_manager_method": "add_bot_utterance"
+            },
+            "harvesters_maintenance_skill": {
+                "connector": {
+                    "protocol": "http",
+                    "url": "http://harvesters_maintenance_skill:3001/respond"
+                },
+                "dialog_formatter": "dp_formatters:last_utt_dialog",
+                "response_formatter": "dp_formatters:base_formatter_service",
+                "state_manager_method": "add_bot_utterance"
+            }
+        },
+        "response_selectors": {
+            "rule_based_response_selector": {
+                "connector": {
+                    "protocol": "http",
+                    "url": "http://convers_evaluation_selector:3002/respond"
+                },
+                "dialog_formatter": "dp_formatters:full_dialog",
+                "response_formatter": "dp_formatters:base_response_selector_formatter_service",
+                "required_previous_services": [
+                    "skills"
+                ],
+                "previous_services": [
+                    "skills"
+                ],
+                "state_manager_method": "add_bot_utterance"
+            }
+        }
+    },
+    "connectors": {}
 }
 
 
