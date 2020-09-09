@@ -22,7 +22,7 @@ def respond():
     st_time = time.time()
 
     dialogs = request.json["dialogs"]
-    response_candidates = [dialog["utterances"][-1]["hypotheses"] for dialog in dialogs_batch]
+    response_candidates = [dialog["utterances"][-1]["hypotheses"] for dialog in dialogs]
 
     selected_skill_names = []
     selected_responses = []
