@@ -180,7 +180,7 @@ def fill_harvesters_status_templates(response, request_text):
         response = response.replace(f"ROVER_ID", f"{available_rovers_ids[0]}")
     elif len(available_rovers_ids) > 1:
         response = response.replace("rover ROVER_ID", f"rovers {', '.join(available_rovers_ids)}")
-    print(response)
+
     if "ID" in response:
         required_id = re.search(r"[0-9]+", request_text)
         if required_id:
@@ -240,6 +240,7 @@ def respond():
     for dialog in dialogs:
         last_utt_text = dialog["human_utterances"][-1]["text"]
         intent = detect_intent(last_utt_text)
+        logger.info(f"Found intent {intent} in user request {last_utt_text}")
         response, confidence = generate_response_from_db(intent, last_utt_text)
 
         responses.append(response)
