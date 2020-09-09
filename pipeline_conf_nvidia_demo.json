@@ -37,13 +37,10 @@
             "rule_based_response_selector": {
                 "connector": {
                     "protocol": "http",
-                    "url": "http://convers_evaluation_selector:3003/respond"
+                    "url": "http://rule_based_response_selector:3003/respond"
                 },
                 "dialog_formatter": "dp_formatters:full_dialog",
                 "response_formatter": "dp_formatters:base_response_selector_formatter_service",
-                "required_previous_services": [
-                    "skills"
-                ],
                 "previous_services": [
                     "skills"
                 ],
