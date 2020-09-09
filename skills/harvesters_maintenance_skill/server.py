@@ -80,7 +80,7 @@ RESPONSES = {
 
 
 def update_database():
-    with open("skills/harvesters_maintenance_skill/harvesters_status.json", "r") as f:
+    with open("harvesters_status.json", "r") as f:
         db = json.load(f)
     return db, time.time()
 
