@@ -43,7 +43,7 @@ for intent in REQUESTS:
 RESPONSES = {
     "all_statuses_request": [
         "Of TOTAL_N_HARVESTERS harvesters, harvester FULL_IDS is full, harvester WORKING_IDS is working,"
-        " harvester BROKEN_IDS is awaiting repaires."
+        " harvester BROKEN_IDS is awaiting repaires, harvester INACTIVE_IDS is inactive."
     ],
     "status_request": [
         "The harvester ID is STATUS."
@@ -72,7 +72,7 @@ RESPONSES = {
 
 
 def update_database():
-    with open("harvesters_status.json", "r") as f:
+    with open("skills/harvesters_maintenance_skill/harvesters_status.json", "r") as f:
         db = json.load(f)
     return db, time.time()
 
@@ -119,8 +119,9 @@ def get_statuses_with_ids(ids):
 
 def fill_harvesters_status_templates(response, request_text):
     full_ids = get_ids_with_statuses("full")
-    working_ids = get_ids_with_statuses(["optimal", "suboptimal"])
-    broken_ids = get_ids_with_statuses("stall")
+    working_ids = get_ids_with_statuses("working")
+    broken_ids = get_ids_with_statuses("broken")
+    inactive_ids = get_ids_with_statuses("inactive")
 
     response = response.replace("TOTAL_N_HARVESTERS", str(len(DATABASE["harvesters"])))
 
@@ -147,6 +148,14 @@ def fill_harvesters_status_templates(response, request_text):
     else:
         response = response.replace("harvester BROKEN_IDS is",
                                     f"harvesters {', '.join(broken_ids)} are")
+
+    if len(inactive_ids) == 0:
+        response = response.replace("harvester INACTIVE_IDS is", "none is")
+    elif len(inactive_ids) == 1:
+        response = response.replace("INACTIVE_IDS", str(inactive_ids[0]))
+    else:
+        response = response.replace("harvester INACTIVE_IDS is",
+                                    f"harvesters {', '.join(inactive_ids)} are")
 
     if "ID" in response:
         required_id = re.search(r"[0-9]+", request_text)[0]
