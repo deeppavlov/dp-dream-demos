@@ -28,3 +28,7 @@ def base_response_selector_formatter_service(payload: List) -> Dict:
 
 def full_dialog(dialog: Dict):
     return [{'dialogs': [dialog]}]
+
+
+def base_skill_formatter(payload: Dict) -> Dict:
+    return {"text": payload[0], "confidence": payload[1]}

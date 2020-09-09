@@ -29,7 +29,7 @@
                     "url": "http://harvesters_maintenance_skill:3002/respond"
                 },
                 "dialog_formatter": "dp_formatters:full_dialog",
-                "response_formatter": "dp_formatters:base_formatter_service",
+                "response_formatter": "dp_formatters:base_skill_formatter",
                 "state_manager_method": "add_bot_utterance"
             }
         },
