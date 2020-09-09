@@ -29,6 +29,9 @@ REQUESTS = {
         r"(what|which) (harvester|combine)s? requires? repairs?",
         r"(what|which) (harvester|combine)s?( is| are)? broken"
     ],
+    "full_ids_request": [
+        r"(what|which) (harvester|combine)s? (is|are|do|does) full"
+    ],
     "working_ids_request": [
         r"(what|which) (harvester|combine)s? (is|are|do|does) work(ing|s)?"
     ],
@@ -52,6 +55,11 @@ RESPONSES = {
         "yes": "Reporting: harvester BROKEN_IDS is broken.",
         "no": "No broken harvesters found.",
         "required": {"harvesters": "broken"}
+    },
+    "full_ids_request": {
+        "yes": "Reporting: harvester FULL_IDS is full.",
+        "no": "No full harvesters found.",
+        "required": {"harvesters": "full"}
     },
     "working_ids_request": {
         "yes": "Reporting: harvester WORKING_IDS is working.",
