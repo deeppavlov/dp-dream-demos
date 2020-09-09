@@ -51,17 +51,17 @@ RESPONSES = {
     "broken_ids_request": {
         "yes": "Reporting: harvester BROKEN_IDS is broken.",
         "no": "No broken harvesters found.",
-        "required": {"harvester": "broken"}
+        "required": {"harvesters": "broken"}
     },
     "working_ids_request": {
         "yes": "Reporting: harvester WORKING_IDS is working.",
         "no": "No working harvesters found.",
-        "required": {"harvester": "working"}
+        "required": {"harvesters": "working"}
     },
     "trip_request": {
         "yes": "Prepare rover ROVER_ID for a trip.",
         "no": "Can't prepare a rover for a trip.",
-        "required": {"rover": "available"}
+        "required": {"rovers": "available"}
     },
     "not_relevant": [
         "I don't have this information.",
@@ -169,10 +169,10 @@ def fill_harvesters_status_templates(response, request_text):
                                     f"harvesters {', '.join(inactive_ids)} are")
 
     if len(available_rovers_ids) == 1:
-        response = response.replace(f"ROVER_ID", f"{available_rovers_ids}")
+        response = response.replace(f"ROVER_ID", f"{available_rovers_ids[0]}")
     elif len(available_rovers_ids) > 1:
         response = response.replace("rover ROVER_ID", f"rovers {', '.join(available_rovers_ids)}")
-
+    print(response)
     if "ID" in response:
         required_id = re.search(r"[0-9]+", request_text)
         if required_id:

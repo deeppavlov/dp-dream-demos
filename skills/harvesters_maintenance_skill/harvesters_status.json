@@ -19,7 +19,7 @@
         "5": "stall"
     },
     "rovers": {
-        "1": "available",
+        "1": "inactive",
         "2": "stall",
         "3": "stall",
         "4": "inactive"
