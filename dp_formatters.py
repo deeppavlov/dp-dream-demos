@@ -24,3 +24,7 @@ def base_response_selector_formatter_service(payload: List) -> Dict:
     elif len(payload) == 5:
         return {"skill_name": payload[0], "text": payload[1], "confidence": payload[2],
                 "human_attributes": payload[3], "bot_attributes": payload[4]}
+
+
+def full_dialog(dialog: Dict):
+    return [{'dialogs': [dialog]}]
