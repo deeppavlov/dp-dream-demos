@@ -88,35 +88,42 @@ def detect_intent(utterance):
     return "not_relevant"
 
 
-def get_ids_with_statuses(status):
-    # statuses are out of ["full", "working", "broken", "inactive"]
+def get_ids_with_statuses(status, which_statuses="harvesters"):
+    # harvesters statuses are out of ["full", "working", "broken", "inactive"]
     if len(status) == 0:
         return []
-
-    status_map = {"working": ["optimal", "suboptimal"],
-                  "full": ["full"],
-                  "broken": ["stall"],
-                  "inactive": ["inactive"]}
-    statuses = status_map[status]
+    if which_statuses == "harvesters":
+        status_map = {"working": ["optimal", "suboptimal"],
+                      "full": ["full"],
+                      "broken": ["stall"],
+                      "inactive": ["inactive"]}
+        statuses = status_map[status]
+    else:
+        statuses = [status]
 
     ids = []
-    for str_id in DATABASE["harvesters"]:
-        if DATABASE["harvesters"][str_id] in statuses:
+    for str_id in DATABASE[which_statuses]:
+        if DATABASE[which_statuses][str_id] in statuses:
             ids.append(str_id)
     return ids
 
 
-def get_statuses_with_ids(ids):
-    # statuses are out of ["full", "working", "broken", "inactive"]
-    status_map = {"optimal": "working",
-                  "suboptimal": "working",
-                  "full": "full",
-                  "stall": "broken",
-                  "inactive": "inactive"}
+def get_statuses_with_ids(ids, which_statuses="harvesters"):
+    # harvesters statuses are out of ["full", "working", "broken", "inactive"]
+    if which_statuses == "harvesters":
+        status_map = {"optimal": "working",
+                      "suboptimal": "working",
+                      "full": "full",
+                      "stall": "broken",
+                      "inactive": "inactive"}
+    else:
+        status_map = {"available": "available",
+                      "stall": "stall",
+                      "inactive": "inactive"}
 
     statuses = []
     for str_id in ids:
-        statuses.append(status_map[DATABASE["harvesters"][str_id]])
+        statuses.append(status_map[DATABASE[which_statuses][str_id]])
     return statuses
 
 
@@ -185,9 +192,14 @@ def generate_response_from_db(intent, utterance):
     if isinstance(responses_collection, list):
         response = random.choice(responses_collection)
     elif isinstance(responses_collection, dict):
-        harv_required_statuses = responses_collection.get("required", {}).get("harvesters", "")
-        ids = get_ids_with_statuses(harv_required_statuses)
-        if len(ids) > 0:
+        required_statuses = responses_collection.get("required", {}).get("harvesters", "")
+        if len(required_statuses) == 0:
+            required_statuses = responses_collection.get("required", {}).get("rovers", "")
+            ids = get_ids_with_statuses(required_statuses, which_statuses="rovers")
+        else:
+            ids = get_ids_with_statuses(required_statuses, which_statuses="harvesters")
+
+        if len(required_statuses) == 0 or (len(required_statuses) > 0 and len(ids) > 0):
             response = responses_collection["yes"]
         else:
             response = responses_collection["no"]
