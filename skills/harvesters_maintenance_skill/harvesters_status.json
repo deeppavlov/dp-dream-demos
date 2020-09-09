@@ -1,0 +1,17 @@
+{
+    "available_statuses": [
+        "full",
+        "inactive",
+        "suboptimal",
+        "optimal",
+        "stall"
+    ],
+    "harvesters": {
+        "1": "full",
+        "2": "inactive",
+        "3": "suboptimal",
+        "4": "optimal",
+        "5": "stall",
+        "6": "full"
+    }
+}
