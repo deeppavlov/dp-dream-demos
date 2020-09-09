@@ -132,6 +132,7 @@ def fill_harvesters_status_templates(response, request_text):
     working_ids = get_ids_with_statuses("working")
     broken_ids = get_ids_with_statuses("broken")
     inactive_ids = get_ids_with_statuses("inactive")
+    available_rovers_ids = get_ids_with_statuses("available", which_statuses="rovers")
 
     response = response.replace("TOTAL_N_HARVESTERS", str(len(DATABASE["harvesters"])))
 
@@ -166,6 +167,11 @@ def fill_harvesters_status_templates(response, request_text):
     else:
         response = response.replace("harvester INACTIVE_IDS is",
                                     f"harvesters {', '.join(inactive_ids)} are")
+
+    if len(available_rovers_ids) == 1:
+        response = response.replace(f"ROVER_ID", f"{available_rovers_ids}")
+    elif len(available_rovers_ids) > 1:
+        response = response.replace("rover ROVER_ID", f"rovers {', '.join(available_rovers_ids)}")
 
     if "ID" in response:
         required_id = re.search(r"[0-9]+", request_text)
