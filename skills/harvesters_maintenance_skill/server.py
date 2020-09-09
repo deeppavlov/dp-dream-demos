@@ -49,19 +49,19 @@ RESPONSES = {
         "The harvester ID is STATUS."
     ],
     "broken_ids_request": {
-        "yes": "Harvester BROKEN_IDS is broken.",
+        "yes": "Reporting: harvester BROKEN_IDS is broken.",
         "no": "No broken harvesters found.",
-        "required_harvester": "stall"
+        "required": {"harvester": "broken"}
     },
     "working_ids_request": {
-        "yes": "Harvester WORKING_IDS is working.",
+        "yes": "Reporting: harvester WORKING_IDS is working.",
         "no": "No working harvesters found.",
-        "required_harvester": ["optimal", "suboptimal"]
+        "required": {"harvester": "working"}
     },
     "trip_request": {
         "yes": "Prepare rover ROVER_ID for a trip.",
         "no": "Can't prepare a rover for a trip.",
-        "required_rover": "available"
+        "required": {"rover": "available"}
     },
     "not_relevant": [
         "I don't have this information.",
@@ -90,6 +90,9 @@ def detect_intent(utterance):
 
 def get_ids_with_statuses(status):
     # statuses are out of ["full", "working", "broken", "inactive"]
+    if len(status) == 0:
+        return []
+
     status_map = {"working": ["optimal", "suboptimal"],
                   "full": ["full"],
                   "broken": ["stall"],
@@ -158,10 +161,16 @@ def fill_harvesters_status_templates(response, request_text):
                                     f"harvesters {', '.join(inactive_ids)} are")
 
     if "ID" in response:
-        required_id = re.search(r"[0-9]+", request_text)[0]
-        status = get_statuses_with_ids([required_id])[0]
-        response = response.replace("ID", required_id)
-        response = response.replace("STATUS", status)
+        required_id = re.search(r"[0-9]+", request_text)
+        if required_id:
+            required_id = required_id[0]
+        if required_id and required_id in DATABASE["harvesters"]:
+            status = get_statuses_with_ids([required_id])[0]
+            response = response.replace("ID", required_id)
+            response = response.replace("STATUS", status)
+        else:
+            response = f"I can answer only about the following harvesters ids: " \
+                       f"{', '.join(DATABASE['harvesters'].keys())}."
 
     return response
 
@@ -176,7 +185,7 @@ def generate_response_from_db(intent, utterance):
     if isinstance(responses_collection, list):
         response = random.choice(responses_collection)
     elif isinstance(responses_collection, dict):
-        harv_required_statuses = responses_collection["required"]
+        harv_required_statuses = responses_collection.get("required", {}).get("harvesters", "")
         ids = get_ids_with_statuses(harv_required_statuses)
         if len(ids) > 0:
             response = responses_collection["yes"]
