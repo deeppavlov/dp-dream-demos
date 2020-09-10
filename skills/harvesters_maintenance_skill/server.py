@@ -20,24 +20,52 @@ app = Flask(__name__)
 
 REQUESTS = {
     "all_statuses_request": [
-        r"(what|which) (is|are)( the)? (harvesters|combines) status(es)?"
+        # r"(what|which) (is|are)( the)? (harvesters|combines) status(es)?",
+        r"(harvesters|combines) status(es)?",
+        r"status(es)?[a-z ]* (harvesters|combines)"
     ],
     "status_request": [
-        r"(what|which) is( the| a)? [0-9]+ (harvester|combine) status"
+        # r"(what|which) is( the| a)? [0-9]+ (harvester|combine) status",
+        r"[0-9]+ (harvester|combine) status",
+        r"(harvester|combine) [0-9]+ status",
+        r"status [a-z ]*[0-9]+ (harvester|combine)",
+        r"status [a-z ]*(harvester|combine) [0-9]+",
     ],
     "broken_ids_request": [
-        r"(what|which) (harvester|combine)s? requires? repairs?",
-        r"(what|which) (harvester|combine)s?( is| are)? broken"
+        r"(harvester|combine)s? require(s|ing)? repairs?",
+        r"(harvester|combine)s? [a-z ]*(broken|stall)",
+        r"(broken|stall) (harvester|combine)s?"
     ],
     "full_ids_request": [
-        r"(what|which) (harvester|combine)s? (is|are|do|does) full"
+        r"(harvester|combine)s? [a-z ]*full",
+        r"full (harvester|combine)s?"
     ],
     "working_ids_request": [
-        r"(what|which) (harvester|combine)s? (is|are|do|does) work(ing|s)?"
+        r"(harvester|combine)s? [a-z ]*work(ing|s)?",
+        r"work(ing|s)? (harvester|combine)s?"
+    ],
+    "inactive_ids_request": [
+        r"(harvester|combine)s? [a-z ]*inactive",
+        r"inactive (harvester|combine)s?"
+    ],
+    "available_rover_ids_request": [
+        r"(rover|vehicle)s? [a-z ]*(work(ing|s)?|available)",
+        r"(work(ing|s)?|available) (rover|vehicle)s?"
+    ],
+    "broken_rover_ids_request": [
+        r"(rover|vehicle)s? require(s|ing)? repairs?",
+        r"(rover|vehicle)s? [a-z ]*(broken|stall)"
+        r"(broken|stall) (rover|vehicle)s?"
+    ],
+    "inactive_rover_ids_request": [
+        r"(rover|vehicle)s? [a-z ]*inactive",
+        r"inactive (rover|vehicle)s?"
     ],
     "trip_request": [
-        r"(want|need|prepare) (rover|vehicle) for( a| the| my)? trip",
-        r"(lets|let us|let's) have( a| the)? trip"
+        # r"(want|need|prepare) (rover|vehicle) for( a| the| my)? trip",
+        # r"(lets|let us|let's) have( a| the)? trip"
+        r"(rover|vehicle) [a-z ]*trip",
+        r"trip [a-z ]*(rover|vehicle)"
     ]
 }
 for intent in REQUESTS:
@@ -54,7 +82,7 @@ RESPONSES = {
     "broken_ids_request": {
         "yes": "Reporting: harvester BROKEN_IDS is broken.",
         "no": "No broken harvesters found.",
-        "required": {"harvesters": "broken"}
+        "required": {"harvesters": "stall"}
     },
     "full_ids_request": {
         "yes": "Reporting: harvester FULL_IDS is full.",
@@ -66,9 +94,29 @@ RESPONSES = {
         "no": "No working harvesters found.",
         "required": {"harvesters": "working"}
     },
+    "inactive_ids_request": {
+        "yes": "Reporting: harvester INACTIVE_IDS is inactive.",
+        "no": "No inactive harvesters found.",
+        "required": {"harvesters": "inactive"}
+    },
+    "broken_rover_ids_request": {
+        "yes": "Reporting: rover BROKEN_ROVER_IDS is broken.",
+        "no": "No broken rovers found.",
+        "required": {"rovers": "stall"}
+    },
+    "available_rover_ids_request": {
+        "yes": "Reporting: rover AVAILABLE_ROVER_IDS is available.",
+        "no": "No available rovers found.",
+        "required": {"rovers": "available"}
+    },
+    "inactive_rover_ids_request": {
+        "yes": "Reporting: rover INACTIVE_ROVER_IDS is inactive.",
+        "no": "No inactive rovers found.",
+        "required": {"rovers": "inactive"}
+    },
     "trip_request": {
-        "yes": "Prepare rover ROVER_ID for a trip.",
-        "no": "Can't prepare a rover for a trip.",
+        "yes": "Prepare rover ROVER_FOR_TRIP_ID for a trip.",
+        "no": "Can't prepare a rover for a trip, no available rovers.",
         "required": {"rovers": "available"}
     },
     "not_relevant": [
@@ -80,6 +128,8 @@ RESPONSES = {
 
 
 def update_database():
+    """Update database loading new version every our
+    """
     with open("harvesters_status.json", "r") as f:
         db = json.load(f)
     return db, time.time()
@@ -89,6 +139,8 @@ DATABASE, PREV_UPDATE_TIME = update_database()
 
 
 def detect_intent(utterance):
+    """Detecting intents with regexp templates
+    """
     for intent in REQUESTS:
         for template in REQUESTS[intent]:
             if re.search(template, utterance):
@@ -96,33 +148,36 @@ def detect_intent(utterance):
     return "not_relevant"
 
 
-def get_ids_with_statuses(status, which_statuses="harvesters"):
-    # harvesters statuses are out of ["full", "working", "broken", "inactive"]
+def get_ids_with_statuses(status, object="harvester"):
+    """Return ids of objects with given (inner) status
+    """
     if len(status) == 0:
         return []
-    if which_statuses == "harvesters":
+    if object == "harvester":
         status_map = {"working": ["optimal", "suboptimal"],
                       "full": ["full"],
-                      "broken": ["stall"],
+                      "stall": ["stall"],
                       "inactive": ["inactive"]}
         statuses = status_map[status]
     else:
         statuses = [status]
 
     ids = []
-    for str_id in DATABASE[which_statuses]:
-        if DATABASE[which_statuses][str_id] in statuses:
+    for str_id in DATABASE[f"{object}s"]:
+        if DATABASE[f"{object}s"][str_id] in statuses:
             ids.append(str_id)
     return ids
 
 
-def get_statuses_with_ids(ids, which_statuses="harvesters"):
-    # harvesters statuses are out of ["full", "working", "broken", "inactive"]
-    if which_statuses == "harvesters":
+def get_statuses_with_ids(ids, object="harvester"):
+    """Return (inner) statuses of objects with given ids
+    """
+    # harvesters statuses are out of ["full", "working", "stall", "inactive"]
+    if object == "harvester":
         status_map = {"optimal": "working",
                       "suboptimal": "working",
                       "full": "full",
-                      "stall": "broken",
+                      "stall": "stall",
                       "inactive": "inactive"}
     else:
         status_map = {"available": "available",
@@ -131,55 +186,51 @@ def get_statuses_with_ids(ids, which_statuses="harvesters"):
 
     statuses = []
     for str_id in ids:
-        statuses.append(status_map[DATABASE[which_statuses][str_id]])
+        statuses.append(status_map[DATABASE[f"{object}s"][str_id]])
     return statuses
 
 
+def fill_in_particular_status(response, ids, template_to_fill, object="harvester"):
+    """Replaces `template_to_fill` (e.g. `FULL_IDS`) in templated response to objects with given `ids`
+    """
+    if len(ids) == 0:
+        response = response.replace(f"{object} {template_to_fill} is", "none is")
+    elif len(ids) == 1:
+        response = response.replace(f"{template_to_fill}", str(ids[0]))
+    else:
+        response = response.replace(f"{object} {template_to_fill} is",
+                                    f"{object}s {', '.join(ids)} are")
+    return response
+
+
 def fill_harvesters_status_templates(response, request_text):
+    """Fill all variables in the templated response
+    """
     full_ids = get_ids_with_statuses("full")
     working_ids = get_ids_with_statuses("working")
-    broken_ids = get_ids_with_statuses("broken")
+    broken_ids = get_ids_with_statuses("stall")
     inactive_ids = get_ids_with_statuses("inactive")
-    available_rovers_ids = get_ids_with_statuses("available", which_statuses="rovers")
+
+    available_rovers_ids = get_ids_with_statuses("available", object="rover")
+    inactive_rovers_ids = get_ids_with_statuses("inactive", object="rover")
+    broken_rovers_ids = get_ids_with_statuses("stall", object="rover")
 
     response = response.replace("TOTAL_N_HARVESTERS", str(len(DATABASE["harvesters"])))
 
-    if len(full_ids) == 0:
-        response = response.replace("harvester FULL_IDS is", "none is")
-    elif len(full_ids) == 1:
-        response = response.replace("FULL_IDS", str(full_ids[0]))
-    else:
-        response = response.replace("harvester FULL_IDS is",
-                                    f"harvesters {', '.join(full_ids)} are")
+    response = fill_in_particular_status(response, full_ids, "FULL_IDS", "harvester")
+    response = fill_in_particular_status(response, working_ids, "WORKING_IDS", "harvester")
+    response = fill_in_particular_status(response, broken_ids, "BROKEN_IDS", "harvester")
+    response = fill_in_particular_status(response, inactive_ids, "INACTIVE_IDS", "harvester")
 
-    if len(working_ids) == 0:
-        response = response.replace("harvester WORKING_IDS is", "none is")
-    elif len(working_ids) == 1:
-        response = response.replace("WORKING_IDS", str(working_ids[0]))
-    else:
-        response = response.replace("harvester WORKING_IDS is",
-                                    f"harvesters {', '.join(working_ids)} are")
-
-    if len(broken_ids) == 0:
-        response = response.replace("harvester BROKEN_IDS is", "none is")
-    elif len(broken_ids) == 1:
-        response = response.replace("BROKEN_IDS", str(broken_ids[0]))
-    else:
-        response = response.replace("harvester BROKEN_IDS is",
-                                    f"harvesters {', '.join(broken_ids)} are")
-
-    if len(inactive_ids) == 0:
-        response = response.replace("harvester INACTIVE_IDS is", "none is")
-    elif len(inactive_ids) == 1:
-        response = response.replace("INACTIVE_IDS", str(inactive_ids[0]))
-    else:
-        response = response.replace("harvester INACTIVE_IDS is",
-                                    f"harvesters {', '.join(inactive_ids)} are")
+    response = fill_in_particular_status(response, available_rovers_ids, "AVAILABLE_ROVER_IDS", "rover")
+    response = fill_in_particular_status(response, inactive_rovers_ids, "INACTIVE_ROVER_IDS", "rover")
+    response = fill_in_particular_status(response, broken_rovers_ids, "BROKEN_ROVER_IDS", "rover")
 
     if len(available_rovers_ids) == 1:
-        response = response.replace(f"ROVER_ID", f"{available_rovers_ids[0]}")
+        avail_rover_id = available_rovers_ids[0]
     elif len(available_rovers_ids) > 1:
-        response = response.replace("rover ROVER_ID", f"rovers {', '.join(available_rovers_ids)}")
+        avail_rover_id = random.choice(available_rovers_ids)
+    response = response.replace("ROVER_FOR_TRIP_ID", f"{avail_rover_id}")
 
     if "ID" in response:
         required_id = re.search(r"[0-9]+", request_text)
@@ -209,9 +260,9 @@ def generate_response_from_db(intent, utterance):
         required_statuses = responses_collection.get("required", {}).get("harvesters", "")
         if len(required_statuses) == 0:
             required_statuses = responses_collection.get("required", {}).get("rovers", "")
-            ids = get_ids_with_statuses(required_statuses, which_statuses="rovers")
+            ids = get_ids_with_statuses(required_statuses, object="rover")
         else:
-            ids = get_ids_with_statuses(required_statuses, which_statuses="harvesters")
+            ids = get_ids_with_statuses(required_statuses, object="harvester")
 
         if len(required_statuses) == 0 or (len(required_statuses) > 0 and len(ids) > 0):
             response = responses_collection["yes"]

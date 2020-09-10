@@ -20,8 +20,8 @@
     },
     "rovers": {
         "1": "inactive",
-        "2": "stall",
-        "3": "stall",
-        "4": "inactive"
+        "2": "available",
+        "3": "available",
+        "4": "available"
     }
 }
