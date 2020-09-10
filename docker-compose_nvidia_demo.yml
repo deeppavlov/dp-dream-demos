@@ -15,6 +15,8 @@ services:
       context: ./skills/harvesters_maintenance_skill/
     command: gunicorn --workers=1 server:app -b 0.0.0.0:3002
     volumes: []
+    ports:
+      - 3002:3002
   mongo:
     command: mongod
     image: mongo:4.0.0
