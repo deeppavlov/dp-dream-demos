@@ -75,7 +75,7 @@ RESPONSES = {
     "broken_ids_request": {
         "yes": "Reporting: harvester BROKEN_IDS is broken.",
         "no": "No broken harvesters found.",
-        "required": {"harvesters": "broken"}
+        "required": {"harvesters": "stall"}
     },
     "full_ids_request": {
         "yes": "Reporting: harvester FULL_IDS is full.",
@@ -95,7 +95,7 @@ RESPONSES = {
     "broken_rover_ids_request": {
         "yes": "Reporting: rover BROKEN_ROVER_IDS is broken.",
         "no": "No broken rovers found.",
-        "required": {"rovers": "broken"}
+        "required": {"rovers": "stall"}
     },
     "available_rover_ids_request": {
         "yes": "Reporting: rover AVAILABLE_ROVER_IDS is available.",
@@ -123,7 +123,7 @@ RESPONSES = {
 def update_database():
     """Update database loading new version every our
     """
-    with open("skills/harvesters_maintenance_skill/harvesters_status.json", "r") as f:
+    with open("harvesters_status.json", "r") as f:
         db = json.load(f)
     return db, time.time()
 
@@ -149,7 +149,7 @@ def get_ids_with_statuses(status, object="harvester"):
     if object == "harvester":
         status_map = {"working": ["optimal", "suboptimal"],
                       "full": ["full"],
-                      "broken": ["stall"],
+                      "stall": ["stall"],
                       "inactive": ["inactive"]}
         statuses = status_map[status]
     else:
@@ -165,12 +165,12 @@ def get_ids_with_statuses(status, object="harvester"):
 def get_statuses_with_ids(ids, object="harvester"):
     """Return (inner) statuses of objects with given ids
     """
-    # harvesters statuses are out of ["full", "working", "broken", "inactive"]
+    # harvesters statuses are out of ["full", "working", "stall", "inactive"]
     if object == "harvester":
         status_map = {"optimal": "working",
                       "suboptimal": "working",
                       "full": "full",
-                      "stall": "broken",
+                      "stall": "stall",
                       "inactive": "inactive"}
     else:
         status_map = {"available": "available",
@@ -201,12 +201,12 @@ def fill_harvesters_status_templates(response, request_text):
     """
     full_ids = get_ids_with_statuses("full")
     working_ids = get_ids_with_statuses("working")
-    broken_ids = get_ids_with_statuses("broken")
+    broken_ids = get_ids_with_statuses("stall")
     inactive_ids = get_ids_with_statuses("inactive")
 
     available_rovers_ids = get_ids_with_statuses("available", object="rover")
     inactive_rovers_ids = get_ids_with_statuses("inactive", object="rover")
-    broken_rovers_ids = get_ids_with_statuses("broken", object="rover")
+    broken_rovers_ids = get_ids_with_statuses("stall", object="rover")
 
     response = response.replace("TOTAL_N_HARVESTERS", str(len(DATABASE["harvesters"])))
 
