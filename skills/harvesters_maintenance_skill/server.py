@@ -41,6 +41,9 @@ REQUESTS = {
     "working_ids_request": [
         r"(what|which) (harvester|combine)s? (is|are|do|does) work(ing|s)?"
     ],
+    "inactive_ids_request": [
+        r"(what|which) (harvester|combine)s? (is|are|do|does) inactive"
+    ],
     "trip_request": [
         # r"(want|need|prepare) (rover|vehicle) for( a| the| my)? trip",
         # r"(lets|let us|let's) have( a| the)? trip"
@@ -74,9 +77,14 @@ RESPONSES = {
         "no": "No working harvesters found.",
         "required": {"harvesters": "working"}
     },
+    "inactive_ids_request": {
+        "yes": "Reporting: harvester INACTIVE_IDS is inactive.",
+        "no": "No inactive harvesters found.",
+        "required": {"harvesters": "inactive"}
+    },
     "trip_request": {
-        "yes": "Prepare rover ROVER_ID for a trip.",
-        "no": "Can't prepare a rover for a trip.",
+        "yes": "Prepare rover ROVER_FOR_TRIP_ID for a trip.",
+        "no": "Can't prepare a rover for a trip, no available rovers.",
         "required": {"rovers": "available"}
     },
     "not_relevant": [
@@ -185,9 +193,9 @@ def fill_harvesters_status_templates(response, request_text):
                                     f"harvesters {', '.join(inactive_ids)} are")
 
     if len(available_rovers_ids) == 1:
-        response = response.replace(f"ROVER_ID", f"{available_rovers_ids[0]}")
+        response = response.replace(f"ROVER_FOR_TRIP_ID", f"{available_rovers_ids[0]}")
     elif len(available_rovers_ids) > 1:
-        response = response.replace("rover ROVER_ID", f"rovers {', '.join(available_rovers_ids)}")
+        response = response.replace("rover ROVER_FOR_TRIP_ID", f"rovers {', '.join(available_rovers_ids)}")
 
     if "ID" in response:
         required_id = re.search(r"[0-9]+", request_text)
