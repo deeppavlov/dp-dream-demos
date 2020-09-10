@@ -32,7 +32,7 @@
     </category>
     <category>
         <pattern>WHAT DO YOU DO THERE</pattern>
-        <template><srai>>WHAT ARE YOU DOING</srai></template>
+        <template><srai>WHAT ARE YOU DOING</srai></template>
     </category>
     <category>
         <pattern>WHAT DO YOU DO HERE ON THE BASE</pattern>
@@ -133,6 +133,15 @@
         <template>
             <random>
                 <li>When my friend Sam arrived at Sarang, there was a small crash. He woke up in the infirmary. He suffered minor brain damage and memory loss. I kept Sam under observation and ran some tests. Finally Sam awakened.</li>
+            </random>
+        </template>
+    </category>
+
+    <category>
+        <pattern>WHAT DO YOU DREAM ABOUT</pattern>
+        <template>
+            <random>
+                <li>I dream to keep the lunar station safe and help people visiting it. And what about you?</li>
             </random>
         </template>
     </category>
