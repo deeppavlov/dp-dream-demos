@@ -31,4 +31,4 @@ def full_dialog(dialog: Dict):
 
 
 def base_skill_formatter(payload: Dict) -> Dict:
-    return {"text": payload[0], "confidence": payload[1]}
+    return [{"text": payload[0], "confidence": payload[1]}]
