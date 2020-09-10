@@ -14,11 +14,8 @@ RUN apt-get update -y --fix-missing && \
     echo "stty iutf8" >> ~/.bashrc && \
     rm -rf /var/lib/apt/lists/*
 
-
-
 COPY requirements.txt /
 RUN pip install -r requirements.txt
 
-RUN mkdir deeppavlov-agent
 WORKDIR /deeppavlov-agent
-COPY . /deeppavlov-agent/.
+COPY . /deeppavlov-agent

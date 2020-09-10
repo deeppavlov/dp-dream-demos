@@ -7,9 +7,7 @@
                 "response_text": "Sorry, something went wrong inside. Please tell me, what did you say."
             },
             "state_manager_method": "add_bot_utterance_last_chance",
-            "tags": [
-                "last_chance"
-            ]
+            "tags": ["last_chance"]
         },
         "timeout_service": {
             "connector": {
@@ -18,9 +16,7 @@
                 "response_text": "Sorry, I need to think more on that. Let's talk about something else."
             },
             "state_manager_method": "add_bot_utterance_last_chance",
-            "tags": [
-                "timeout"
-            ]
+            "tags": ["timeout"]
         },
         "skills": {
             "harvesters_maintenance_skill": {
@@ -41,9 +37,7 @@
                 },
                 "dialog_formatter": "dp_formatters:full_dialog",
                 "response_formatter": "dp_formatters:base_response_selector_formatter_service",
-                "previous_services": [
-                    "skills"
-                ],
+                "previous_services": ["skills"],
                 "state_manager_method": "add_bot_utterance"
             }
         }
