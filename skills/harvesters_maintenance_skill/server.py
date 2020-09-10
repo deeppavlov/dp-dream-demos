@@ -44,6 +44,16 @@ REQUESTS = {
     "inactive_ids_request": [
         r"(what|which) (harvester|combine)s? (is|are|do|does) inactive"
     ],
+    "available_rover_ids_request": [
+        r"(what|which) (rover|vehicle)s? (is|are|do|does) (work(ing|s)?|available)"
+    ],
+    "broken_rover_ids_request": [
+        r"(what|which) (rover|vehicle)s? requires? repairs?",
+        r"(what|which) (rover|vehicle)s?( is| are)? broken"
+    ],
+    "inactive_rover_ids_request": [
+        r"(what|which) (rover|vehicle)s? (is|are|do|does) inactive"
+    ],
     "trip_request": [
         # r"(want|need|prepare) (rover|vehicle) for( a| the| my)? trip",
         # r"(lets|let us|let's) have( a| the)? trip"
@@ -81,6 +91,21 @@ RESPONSES = {
         "yes": "Reporting: harvester INACTIVE_IDS is inactive.",
         "no": "No inactive harvesters found.",
         "required": {"harvesters": "inactive"}
+    },
+    "broken_rover_ids_request": {
+        "yes": "Reporting: rover BROKEN_ROVER_IDS is broken.",
+        "no": "No broken rovers found.",
+        "required": {"rovers": "broken"}
+    },
+    "available_rover_ids_request": {
+        "yes": "Reporting: rover AVAILABLE_ROVER_IDS is available.",
+        "no": "No available rovers found.",
+        "required": {"rovers": "available"}
+    },
+    "inactive_rover_ids_request": {
+        "yes": "Reporting: rover INACTIVE_ROVER_IDS is inactive.",
+        "no": "No inactive rovers found.",
+        "required": {"rovers": "inactive"}
     },
     "trip_request": {
         "yes": "Prepare rover ROVER_FOR_TRIP_ID for a trip.",
@@ -178,7 +203,10 @@ def fill_harvesters_status_templates(response, request_text):
     working_ids = get_ids_with_statuses("working")
     broken_ids = get_ids_with_statuses("broken")
     inactive_ids = get_ids_with_statuses("inactive")
+
     available_rovers_ids = get_ids_with_statuses("available", object="rover")
+    inactive_rovers_ids = get_ids_with_statuses("inactive", object="rover")
+    broken_rovers_ids = get_ids_with_statuses("broken", object="rover")
 
     response = response.replace("TOTAL_N_HARVESTERS", str(len(DATABASE["harvesters"])))
 
@@ -186,6 +214,10 @@ def fill_harvesters_status_templates(response, request_text):
     response = fill_in_particular_status(response, working_ids, "WORKING_IDS", "harvester")
     response = fill_in_particular_status(response, broken_ids, "BROKEN_IDS", "harvester")
     response = fill_in_particular_status(response, inactive_ids, "INACTIVE_IDS", "harvester")
+
+    response = fill_in_particular_status(response, available_rovers_ids, "AVAILABLE_ROVER_IDS", "rover")
+    response = fill_in_particular_status(response, inactive_rovers_ids, "INACTIVE_ROVER_IDS", "rover")
+    response = fill_in_particular_status(response, broken_rovers_ids, "BROKEN_ROVER_IDS", "rover")
 
     if len(available_rovers_ids) == 1:
         response = response.replace(f"ROVER_FOR_TRIP_ID", f"{available_rovers_ids[0]}")
