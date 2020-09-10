@@ -32,27 +32,34 @@ REQUESTS = {
         r"status [a-z ]*(harvester|combine) [0-9]+",
     ],
     "broken_ids_request": [
-        r"(what|which) (harvester|combine)s? requires? repairs?",
-        r"(what|which) (harvester|combine)s?( is| are)? broken"
+        r"(harvester|combine)s? require(s|ing)? repairs?",
+        r"(harvester|combine)s? [a-z ]*(broken|stall)",
+        r"(broken|stall) (harvester|combine)s?"
     ],
     "full_ids_request": [
-        r"(what|which) (harvester|combine)s? (is|are|do|does) full"
+        r"(harvester|combine)s? [a-z ]*full",
+        r"full (harvester|combine)s?"
     ],
     "working_ids_request": [
-        r"(what|which) (harvester|combine)s? (is|are|do|does) work(ing|s)?"
+        r"(harvester|combine)s? [a-z ]*work(ing|s)?",
+        r"work(ing|s)? (harvester|combine)s?"
     ],
     "inactive_ids_request": [
-        r"(what|which) (harvester|combine)s? (is|are|do|does) inactive"
+        r"(harvester|combine)s? [a-z ]*inactive",
+        r"inactive (harvester|combine)s?"
     ],
     "available_rover_ids_request": [
-        r"(what|which) (rover|vehicle)s? (is|are|do|does) (work(ing|s)?|available)"
+        r"(rover|vehicle)s? [a-z ]*(work(ing|s)?|available)",
+        r"(work(ing|s)?|available) (rover|vehicle)s?"
     ],
     "broken_rover_ids_request": [
-        r"(what|which) (rover|vehicle)s? requires? repairs?",
-        r"(what|which) (rover|vehicle)s?( is| are)? broken"
+        r"(rover|vehicle)s? require(s|ing)? repairs?",
+        r"(rover|vehicle)s? [a-z ]*(broken|stall)"
+        r"(broken|stall) (rover|vehicle)s?"
     ],
     "inactive_rover_ids_request": [
-        r"(what|which) (rover|vehicle)s? (is|are|do|does) inactive"
+        r"(rover|vehicle)s? [a-z ]*inactive",
+        r"inactive (rover|vehicle)s?"
     ],
     "trip_request": [
         # r"(want|need|prepare) (rover|vehicle) for( a| the| my)? trip",
