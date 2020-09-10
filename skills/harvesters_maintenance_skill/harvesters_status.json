@@ -1,0 +1,27 @@
+{
+    "available_harvesters_statuses": [
+        "full",
+        "inactive",
+        "suboptimal",
+        "optimal",
+        "stall"
+    ],
+    "available_rovers_statuses": [
+        "available",
+        "inactive",
+        "stall"
+    ],
+    "harvesters": {
+        "1": "full",
+        "2": "full",
+        "3": "suboptimal",
+        "4": "optimal",
+        "5": "stall"
+    },
+    "rovers": {
+        "1": "inactive",
+        "2": "stall",
+        "3": "stall",
+        "4": "inactive"
+    }
+}
