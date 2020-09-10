@@ -17,4 +17,5 @@ async def create_upload_file(user_id: str, file: UploadFile = File(...)):
     response = post_response.json()['response']
     print(f'response is "{response}"')
     audio_response = tts([response])[0]
-    return StreamingResponse(audio_response, media_type='audio/x-wav', headers={'response': response})
+    return StreamingResponse(audio_response, media_type='audio/x-wav', headers={'response': response,
+                                                                                'transcript': transcript})
