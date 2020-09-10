@@ -227,9 +227,10 @@ def fill_harvesters_status_templates(response, request_text):
     response = fill_in_particular_status(response, broken_rovers_ids, "BROKEN_ROVER_IDS", "rover")
 
     if len(available_rovers_ids) == 1:
-        response = response.replace(f"ROVER_FOR_TRIP_ID", f"{available_rovers_ids[0]}")
+        avail_rover_id = available_rovers_ids[0]
     elif len(available_rovers_ids) > 1:
-        response = response.replace("rover ROVER_FOR_TRIP_ID", f"rovers {', '.join(available_rovers_ids)}")
+        avail_rover_id = random.choice(available_rovers_ids)
+    response = response.replace("ROVER_FOR_TRIP_ID", f"{avail_rover_id}")
 
     if "ID" in response:
         required_id = re.search(r"[0-9]+", request_text)
