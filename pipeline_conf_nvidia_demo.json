@@ -30,7 +30,7 @@
                 },
                 "dialog_formatter": "dp_formatters:full_dialog",
                 "response_formatter": "dp_formatters:base_skill_formatter",
-                "state_manager_method": "add_bot_utterance"
+                "state_manager_method": "add_hypothesis"
             }
         },
         "response_selectors": {
