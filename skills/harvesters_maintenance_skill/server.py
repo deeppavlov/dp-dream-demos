@@ -20,10 +20,16 @@ app = Flask(__name__)
 
 REQUESTS = {
     "all_statuses_request": [
-        r"(what|which) (is|are)( the)? (harvesters|combines) status(es)?"
+        # r"(what|which) (is|are)( the)? (harvesters|combines) status(es)?",
+        r"(harvesters|combines) status(es)?",
+        r"status(es)?[a-z ]* (harvesters|combines)"
     ],
     "status_request": [
-        r"(what|which) is( the| a)? [0-9]+ (harvester|combine) status"
+        # r"(what|which) is( the| a)? [0-9]+ (harvester|combine) status",
+        r"[0-9]+ (harvester|combine) status",
+        r"(harvester|combine) [0-9]+ status",
+        r"status [a-z ]*[0-9]+ (harvester|combine)",
+        r"status [a-z ]*(harvester|combine) [0-9]+",
     ],
     "broken_ids_request": [
         r"(what|which) (harvester|combine)s? requires? repairs?",
@@ -36,8 +42,10 @@ REQUESTS = {
         r"(what|which) (harvester|combine)s? (is|are|do|does) work(ing|s)?"
     ],
     "trip_request": [
-        r"(want|need|prepare) (rover|vehicle) for( a| the| my)? trip",
-        r"(lets|let us|let's) have( a| the)? trip"
+        # r"(want|need|prepare) (rover|vehicle) for( a| the| my)? trip",
+        # r"(lets|let us|let's) have( a| the)? trip"
+        r"(rover|vehicle) [a-z ]*trip",
+        r"trip [a-z ]*(rover|vehicle)"
     ]
 }
 for intent in REQUESTS:
