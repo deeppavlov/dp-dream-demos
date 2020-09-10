@@ -96,7 +96,9 @@ RESPONSES = {
 
 
 def update_database():
-    with open("harvesters_status.json", "r") as f:
+    """Update database loading new version every our
+    """
+    with open("skills/harvesters_maintenance_skill/harvesters_status.json", "r") as f:
         db = json.load(f)
     return db, time.time()
 
@@ -105,6 +107,8 @@ DATABASE, PREV_UPDATE_TIME = update_database()
 
 
 def detect_intent(utterance):
+    """Detecting intents with regexp templates
+    """
     for intent in REQUESTS:
         for template in REQUESTS[intent]:
             if re.search(template, utterance):
@@ -112,11 +116,12 @@ def detect_intent(utterance):
     return "not_relevant"
 
 
-def get_ids_with_statuses(status, which_statuses="harvesters"):
-    # harvesters statuses are out of ["full", "working", "broken", "inactive"]
+def get_ids_with_statuses(status, object="harvester"):
+    """Return ids of objects with given (inner) status
+    """
     if len(status) == 0:
         return []
-    if which_statuses == "harvesters":
+    if object == "harvester":
         status_map = {"working": ["optimal", "suboptimal"],
                       "full": ["full"],
                       "broken": ["stall"],
@@ -126,15 +131,17 @@ def get_ids_with_statuses(status, which_statuses="harvesters"):
         statuses = [status]
 
     ids = []
-    for str_id in DATABASE[which_statuses]:
-        if DATABASE[which_statuses][str_id] in statuses:
+    for str_id in DATABASE[f"{object}s"]:
+        if DATABASE[f"{object}s"][str_id] in statuses:
             ids.append(str_id)
     return ids
 
 
-def get_statuses_with_ids(ids, which_statuses="harvesters"):
+def get_statuses_with_ids(ids, object="harvester"):
+    """Return (inner) statuses of objects with given ids
+    """
     # harvesters statuses are out of ["full", "working", "broken", "inactive"]
-    if which_statuses == "harvesters":
+    if object == "harvester":
         status_map = {"optimal": "working",
                       "suboptimal": "working",
                       "full": "full",
@@ -147,50 +154,38 @@ def get_statuses_with_ids(ids, which_statuses="harvesters"):
 
     statuses = []
     for str_id in ids:
-        statuses.append(status_map[DATABASE[which_statuses][str_id]])
+        statuses.append(status_map[DATABASE[f"{object}s"][str_id]])
     return statuses
 
 
+def fill_in_particular_status(response, ids, template_to_fill, object="harvester"):
+    """Replaces `template_to_fill` (e.g. `FULL_IDS`) in templated response to objects with given `ids`
+    """
+    if len(ids) == 0:
+        response = response.replace(f"{object} {template_to_fill} is", "none is")
+    elif len(ids) == 1:
+        response = response.replace(f"{template_to_fill}", str(ids[0]))
+    else:
+        response = response.replace(f"{object} {template_to_fill} is",
+                                    f"{object}s {', '.join(ids)} are")
+    return response
+
+
 def fill_harvesters_status_templates(response, request_text):
+    """Fill all variables in the templated response
+    """
     full_ids = get_ids_with_statuses("full")
     working_ids = get_ids_with_statuses("working")
     broken_ids = get_ids_with_statuses("broken")
     inactive_ids = get_ids_with_statuses("inactive")
-    available_rovers_ids = get_ids_with_statuses("available", which_statuses="rovers")
+    available_rovers_ids = get_ids_with_statuses("available", object="rover")
 
     response = response.replace("TOTAL_N_HARVESTERS", str(len(DATABASE["harvesters"])))
 
-    if len(full_ids) == 0:
-        response = response.replace("harvester FULL_IDS is", "none is")
-    elif len(full_ids) == 1:
-        response = response.replace("FULL_IDS", str(full_ids[0]))
-    else:
-        response = response.replace("harvester FULL_IDS is",
-                                    f"harvesters {', '.join(full_ids)} are")
-
-    if len(working_ids) == 0:
-        response = response.replace("harvester WORKING_IDS is", "none is")
-    elif len(working_ids) == 1:
-        response = response.replace("WORKING_IDS", str(working_ids[0]))
-    else:
-        response = response.replace("harvester WORKING_IDS is",
-                                    f"harvesters {', '.join(working_ids)} are")
-
-    if len(broken_ids) == 0:
-        response = response.replace("harvester BROKEN_IDS is", "none is")
-    elif len(broken_ids) == 1:
-        response = response.replace("BROKEN_IDS", str(broken_ids[0]))
-    else:
-        response = response.replace("harvester BROKEN_IDS is",
-                                    f"harvesters {', '.join(broken_ids)} are")
-
-    if len(inactive_ids) == 0:
-        response = response.replace("harvester INACTIVE_IDS is", "none is")
-    elif len(inactive_ids) == 1:
-        response = response.replace("INACTIVE_IDS", str(inactive_ids[0]))
-    else:
-        response = response.replace("harvester INACTIVE_IDS is",
-                                    f"harvesters {', '.join(inactive_ids)} are")
+    response = fill_in_particular_status(response, full_ids, "FULL_IDS", "harvester")
+    response = fill_in_particular_status(response, working_ids, "WORKING_IDS", "harvester")
+    response = fill_in_particular_status(response, broken_ids, "BROKEN_IDS", "harvester")
+    response = fill_in_particular_status(response, inactive_ids, "INACTIVE_IDS", "harvester")
 
     if len(available_rovers_ids) == 1:
         response = response.replace(f"ROVER_FOR_TRIP_ID", f"{available_rovers_ids[0]}")
@@ -225,9 +220,9 @@ def generate_response_from_db(intent, utterance):
         required_statuses = responses_collection.get("required", {}).get("harvesters", "")
         if len(required_statuses) == 0:
             required_statuses = responses_collection.get("required", {}).get("rovers", "")
-            ids = get_ids_with_statuses(required_statuses, which_statuses="rovers")
+            ids = get_ids_with_statuses(required_statuses, object="rover")
         else:
-            ids = get_ids_with_statuses(required_statuses, which_statuses="harvesters")
+            ids = get_ids_with_statuses(required_statuses, object="harvester")
 
         if len(required_statuses) == 0 or (len(required_statuses) > 0 and len(ids) > 0):
             response = responses_collection["yes"]
