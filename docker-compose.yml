@@ -9,6 +9,12 @@ services:
       - 4242:4242
     tty: true
     command: python -m deeppavlov_agent.run -ch http_client --cors
+  spelling_preprocessing:
+    build:
+      context: annotators/spelling_preprocessing
+    command: gunicorn --workers=1 server:app -b 0.0.0.0:3001 --timeout=100
+    ports:
+      - 3001:3001
   harvesters_maintenance_skill:
     build:
       context: skills/harvesters_maintenance_skill

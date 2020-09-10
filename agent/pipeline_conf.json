@@ -18,15 +18,27 @@
             "state_manager_method": "add_bot_utterance_last_chance",
             "tags": ["timeout"]
         },
+        "annotators": {
+            "spelling_preprocessing": {
+                "connector": {
+                    "protocol": "http",
+                    "url": "http://spelling_preprocessing:3001/response"
+                },
+                "dialog_formatter": "dp_formatters:last_utt_dialog",
+                "response_formatter": "dp_formatters:simple_formatter_service",
+                "state_manager_method": "add_annotation"
+            }
+        },
         "skills": {
             "harvesters_maintenance_skill": {
                 "connector": {
                     "protocol": "http",
                     "url": "http://harvesters_maintenance_skill:3002/respond"
                 },
-                "dialog_formatter": "dp_formatters:full_dialog",
+                "dialog_formatter": "dp_formatters:preproc_last_human_utt_dialog",
                 "response_formatter": "dp_formatters:base_skill_formatter",
-                "state_manager_method": "add_hypothesis"
+                "state_manager_method": "add_hypothesis",
+                "previous_services": ["annotators"]
             }
         },
         "response_selectors": {

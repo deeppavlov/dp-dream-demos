@@ -32,3 +32,15 @@ def full_dialog(dialog: Dict):
 
 def base_skill_formatter(payload: Dict) -> Dict:
     return [{"text": payload[0], "confidence": payload[1]}]
+
+def simple_formatter_service(payload: List):
+    '''
+    Used by: punct_dialogs_formatter, intent_catcher_formatter, asr_formatter,
+    sent_rewrite_formatter, sent_segm_formatter, base_skill_selector_formatter
+    '''
+    logging.info('answer ' + str(payload))
+    return payload
+
+def preproc_last_human_utt_dialog(dialog: Dict) -> Dict:
+    # Used by: sentseg over human uttrs
+    return [{'sentences': [dialog['human_utterances'][-1]['annotations']["spelling_preprocessing"]]}]
