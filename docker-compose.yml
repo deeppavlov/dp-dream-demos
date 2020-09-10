@@ -44,4 +44,10 @@ services:
       - agent
     ports:
       - 4343:4343
+  emotion_classification:
+    build:
+      context: annotators/emotion_classification
+    command: python -m deeppavlov riseapi emo_bert.json -p 3004
+    ports:
+      - 3004:3004
 version: "3.7"

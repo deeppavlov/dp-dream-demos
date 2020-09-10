@@ -44,3 +44,21 @@ def simple_formatter_service(payload: List):
 def preproc_last_human_utt_dialog(dialog: Dict) -> Dict:
     # Used by: sentseg over human uttrs
     return [{'sentences': [dialog['human_utterances'][-1]['annotations']["spelling_preprocessing"]]}]
+
+def preproc_last_bot_utt_dialog(dialog: Dict) -> Dict:
+    # Used by: sentseg over human uttrs
+    return [{'sentences': [dialog['bot_utterances'][-1]['annotations']["spelling_preprocessing"]]}]
+
+def cobot_classifiers_formatter_service(payload: List):
+    # Used by: cobot_classifiers_formatter, sentiment_formatter
+    if len(payload) == 3:
+        return {"text": payload[0],
+                "confidence": payload[1],
+                "is_blacklisted": payload[2]}
+    elif len(payload) == 2:
+        return {"text": payload[0],
+                "confidence": payload[1]}
+    elif len(payload) == 1:
+        return {"text": payload[0]}
+    elif len(payload) == 0:
+        return {"text": []}
