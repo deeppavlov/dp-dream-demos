@@ -71,13 +71,6 @@ def hypotheses_list(dialog: Dict) -> Dict:
     hypots = [h["text"] for h in hypotheses]
     return [{'sentences': hypots}]
 
-def simple_formatter_annotator(payload: List):
-    '''
-    Used by: punct_dialogs_formatter, intent_catcher_formatter, asr_formatter,
-    sent_rewrite_formatter, sent_segm_formatter, base_skill_selector_formatter
-    '''
-    return {'batch': payload}
-
 
 def is_bot_uttr_repeated_or_misheard(utt):
     is_asr = utt.get("active_skill", "") == "misheard_asr" and utt.get("confidence", 0.) == 1.
