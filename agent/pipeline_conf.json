@@ -39,6 +39,16 @@
                 "response_formatter": "dp_formatters:base_skill_formatter",
                 "state_manager_method": "add_hypothesis",
                 "previous_services": ["annotators"]
+            },
+            "program_y": {
+                "connector": {
+                    "protocol": "http",
+                    "url": "http://program_y:3005/api/rest/v1.0/ask"
+                },
+                "dialog_formatter": "dp_formatters:programy_formatter_dialog",
+                "response_formatter": "dp_formatters:skill_with_attributes_formatter_service",
+                "previous_services": ["annotators"],
+                "state_manager_method": "add_hypothesis"
             }
         },
         "response_annotators": {

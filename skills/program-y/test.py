@@ -3,7 +3,7 @@ import requests
 
 
 def main_test():
-    url = "http://0.0.0.0:8008/api/rest/v1.0/ask"
+    url = "http://0.0.0.0:3005/api/rest/v1.0/ask"
 
     sent = "do you have a boyfriend"
     data = {"sentences_batch": [[sent]]}

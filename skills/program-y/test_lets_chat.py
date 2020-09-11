@@ -6,7 +6,7 @@ import requests
 
 
 def main_test():
-    url = "http://0.0.0.0:8008/api/rest/v1.0/ask"
+    url = "http://0.0.0.0:3005/api/rest/v1.0/ask"
     sentences = {}
     # hello
     sentences["hello"] = [

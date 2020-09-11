@@ -50,4 +50,9 @@ services:
     command: python -m deeppavlov riseapi emo_bert.json -p 3004
     ports:
       - 3004:3004
+  program_y:
+    build:
+      context: skills/program-y
+    ports:
+      - 3005:3005
 version: "3.7"
