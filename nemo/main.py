@@ -26,7 +26,7 @@ async def create_upload_file(user_id: str, file: UploadFile = File(...)):
     emotion = 'none'
     for skill_dict in response_payload['debug_output']:
         if skill_dict['skill_name'] == active_skill:
-            emotions = skill_dict['annotations']['emotion_classification']
+            emotions = skill_dict['annotations']['emotion_classification'][0]
             emotion = max(emotions, key=emotions.get)
 
     return StreamingResponse(audio_response, media_type='audio/x-wav', headers={'response': response,
