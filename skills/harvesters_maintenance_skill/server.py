@@ -283,7 +283,7 @@ def generate_response_from_db(intent, utterance):
 def respond():
     st_time = time.time()
 
-    sentences = request.json["sentences"]
+    dialogs = request.json["dialogs"]
 
     responses = []
     confidences = []
