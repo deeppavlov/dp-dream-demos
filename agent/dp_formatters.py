@@ -62,3 +62,15 @@ def cobot_classifiers_formatter_service(payload: List):
         return {"text": payload[0]}
     elif len(payload) == 0:
         return {"text": []}
+
+def hypotheses_list(dialog: Dict) -> Dict:
+    hypotheses = dialog["utterances"][-1]["hypotheses"]
+    hypots = [h["text"] for h in hypotheses]
+    return [{'sentences': hypots}]
+
+def simple_formatter_annotator(payload: List):
+    '''
+    Used by: punct_dialogs_formatter, intent_catcher_formatter, asr_formatter,
+    sent_rewrite_formatter, sent_segm_formatter, base_skill_selector_formatter
+    '''
+    return {'batch': payload}
