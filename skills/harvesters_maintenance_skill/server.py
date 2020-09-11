@@ -289,10 +289,13 @@ def respond():
     confidences = []
 
     for dialog in dialogs:
-        last_utt_text = dialog["human_utterances"][-1]["text"]
-        intent = detect_intent(last_utt_text)
-        logger.info(f"Found intent {intent} in user request {last_utt_text}")
-        response, confidence = generate_response_from_db(intent, last_utt_text)
+        sentence = dialog['human_utterances'][-1]['annotations'].get("spelling_preprocessing")
+        if sentence is None:
+            logger.warning('Not found spelling preprocessing annotation')
+            sentence = dialog['human_utterances'][-1]['text']
+        intent = detect_intent(sentence)
+        logger.info(f"Found intent {intent} in user request {sentence}")
+        response, confidence = generate_response_from_db(intent, sentence)
 
         responses.append(response)
         confidences.append(confidence)
