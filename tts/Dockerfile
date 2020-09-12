@@ -19,4 +19,6 @@ RUN wget http://files.deeppavlov.ai/deeppavlov_data/nemo/voice_cloning/pretraine
 
 RUN apt install -y libsndfile-dev
 
+RUN wget http://files.deeppavlov.ai/deeppavlov_data/nemo/voice_cloning/gerty_sample.wav
+
 COPY main.py .

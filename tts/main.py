@@ -72,27 +72,28 @@ print("This is a GUI-less example of interface to SV2TTS. The purpose of this sc
 
 print("Interactive generation loop")
 
-embed = None
+
+def load_embedding(file):
+    original_wav, sampling_rate = librosa.load(file)
+    preprocessed_wav = encoder.preprocess_wav(original_wav, sampling_rate)
+    print("Loaded file succesfully")
+    emb = encoder.embed_utterance(preprocessed_wav)
+    return emb
+
+
+embed = load_embedding('gerty_sample.wav')
+
 
 app = FastAPI()
 
 @app.post("/sample")
 async def create_upload_file(file: UploadFile = File(...)):
     global embed
-    original_wav, sampling_rate = librosa.load(file.file)
-    preprocessed_wav = encoder.preprocess_wav(original_wav, sampling_rate)
-    print("Loaded file succesfully")
-
-    # Then we derive the embedding. There are many functions and parameters that the
-    # speaker encoder interfaces. These are mostly for in-depth research. You will typically
-    # only use this function (with its default parameters):
-    embed = encoder.embed_utterance(preprocessed_wav)
+    embed = load_embedding(file.file)
     return 200
 
 @app.post("/tts")
 async def create_upload_file(text: str):
-    if embed is None:
-        raise HTTPException(status_code=500, detail="Please, send sample file to /sample endpoint")
     texts = [text]
     embeds = [embed]
     # If you know what the attention layer alignments are, you can retrieve them here by

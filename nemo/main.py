@@ -4,6 +4,7 @@ import requests
 from deeppavlov import build_model, configs
 from fastapi import FastAPI, File, UploadFile
 from fastapi.responses import StreamingResponse
+from fastapi.responses import JSONResponse
 from num2words import num2words
 
 app = FastAPI()
@@ -21,7 +22,7 @@ async def create_upload_file(user_id: str, file: UploadFile = File(...)):
     print(f'response is "{response}"')
     response = re.sub(r'([0-9]+)', lambda x: num2words(x.group(0)), response)
     response_payload['response'] = response
-    return response_payload
+    return JSONResponse(content=response_payload, headers={'transcript': transcript})
     audio_response = tts([response])[0]
 
     active_skill = response_payload['active_skill']
