@@ -20,6 +20,8 @@ async def create_upload_file(user_id: str, file: UploadFile = File(...)):
     response = response_payload['response']
     print(f'response is "{response}"')
     response = re.sub(r'([0-9]+)', lambda x: num2words(x.group(0)), response)
+    response_payload['response'] = response
+    return response_payload
     audio_response = tts([response])[0]
 
     active_skill = response_payload['active_skill']

@@ -55,4 +55,10 @@ services:
       context: skills/program-y
     ports:
       - 3005:3005
+  tts:
+    command: uvicorn main:app --host 0.0.0.0 --reload --port 8000
+    build:
+      context: tts
+    ports:
+      - 8000:8000
 version: "3.7"
