@@ -1,8 +1,5 @@
 import logging
-from copy import deepcopy
 from typing import Dict, List
-from universal_templates import if_lets_chat_about_topic
-from utils import service_intents
 
 logger = logging.getLogger(__name__)
 
@@ -72,96 +69,8 @@ def hypotheses_list(dialog: Dict) -> Dict:
     return [{'sentences': hypots}]
 
 
-def is_bot_uttr_repeated_or_misheard(utt):
-    is_asr = utt.get("active_skill", "") == "misheard_asr" and utt.get("confidence", 0.) == 1.
-    is_repeated = "#+#repeat" in utt.get("text", "")
-    if is_asr or is_repeated:
-        return True
-    else:
-        return False
-
-
-def is_human_uttr_repeat_request_or_misheard(utt):
-    is_repeat_request = utt.get('annotations', {}).get("intent_catcher", {}).get("repeat", {}).get("detected", 0) == 1
-    is_low_asr_conf = utt.get('annotations', {}).get('asr', {}).get('asr_confidence', "") == 'very_low'
-    if is_low_asr_conf or is_repeat_request:
-        return True
-    else:
-        return False
-
-
-def last_n_human_utt_dialog_formatter(dialog: Dict, last_n_utts: int, only_last_sentence: bool = False) -> List:
-    """
-    Args:
-        dialog (Dict): full dialog state
-        last_n_utts (int): how many last user utterances to take
-        only_last_sentence (bool, optional): take only last sentence in each utterance. Defaults to False.
-    """
-    if len(dialog["human_utterances"]) <= last_n_utts and \
-            not if_lets_chat_about_topic(dialog["utterances"][0]["text"].lower()):
-        # in all cases when not particular topic, convert first phrase in the dialog to `hello!`
-        dialog["utterances"][0]['annotations']['sentseg']['punct_sent'] = "hello!"
-    human_utts = []
-    detected_intents = []
-    for utt in dialog['utterances']:
-        if utt['user']['user_type'] == 'human':
-            sentseg_ann = utt['annotations']['sentseg']
-            if only_last_sentence:
-                text = sentseg_ann['segments'][-1] if len(sentseg_ann['segments']) > 0 else ''
-            else:
-                text = sentseg_ann['punct_sent']
-            human_utts += [text]
-            detected_intents += [[intent for intent, value in utt['annotations'].get('intent_catcher', {}).items()
-                                 if value['detected']]]
-    return [{'sentences_batch': [human_utts[-last_n_utts:]], 'intents': [detected_intents[-last_n_utts:]]}]
-
-
-def remove_clarification_turns_from_dialog(dialog):
-    new_dialog = deepcopy(dialog)
-    new_dialog["utterances"] = []
-    dialog_length = len(dialog["utterances"])
-
-    for i, utt in enumerate(dialog["utterances"]):
-        if utt['user']['user_type'] == 'human':
-            new_dialog["utterances"].append(utt)
-        elif utt['user']['user_type'] == 'bot':
-            if 0 < i < dialog_length - 1 and is_bot_uttr_repeated_or_misheard(utt) and \
-                    is_human_uttr_repeat_request_or_misheard(dialog["utterances"][i - 1]):
-                new_dialog["utterances"] = new_dialog["utterances"][:-1]
-            else:
-                new_dialog["utterances"].append(utt)
-
-    new_dialog["human_utterances"] = []
-    new_dialog["bot_utterances"] = []
-
-    for utt in new_dialog["utterances"]:
-        if utt['user']['user_type'] == 'human':
-            new_dialog["human_utterances"].append(utt)
-        elif utt['user']['user_type'] == 'bot':
-            new_dialog["bot_utterances"].append(utt)
-
-    return new_dialog
-
-
 def programy_formatter_dialog(dialog: Dict) -> List:
-    # Used by: program_y, program_y_dangerous, program_y_wide
-    dialog = remove_clarification_turns_from_dialog(dialog)
     return [{'sentences_batch': [[u['text'] for u in dialog['utterances'][-5:]]]}]
-    dialog = last_n_human_utt_dialog_formatter(dialog, last_n_utts=5)[0]
-    sentences = dialog['sentences_batch'][0]
-    intents = dialog['intents'][0]
-
-    # modify sentences with yes/no intents to yes/no phrase
-    # todo: sent may contain multiple sentence, logic here could be improved
-    prioritized_intents = service_intents - {'yes', 'no'}
-    for i, (sent, ints) in enumerate(zip(sentences, intents)):
-        ints = set(ints)
-        if '?' not in sent and len(ints & prioritized_intents) == 0:
-            if 'yes' in ints:
-                sentences[i] = 'yes.'
-            elif 'no' in ints:
-                sentences[i] = 'no.'
-    return [{'sentences_batch': [sentences]}]
 
 
 def skill_with_attributes_formatter_service(payload: Dict):
