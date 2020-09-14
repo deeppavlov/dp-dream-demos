@@ -7,7 +7,7 @@ from fastapi.responses import StreamingResponse, JSONResponse
 from num2words import num2words
 
 app = FastAPI()
-asr = build_model(configs.nemo.asr)
+asr = build_model('asr.json')
 tts = build_model('tts.json')
 
 
