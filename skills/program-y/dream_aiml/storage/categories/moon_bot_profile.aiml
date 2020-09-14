@@ -27,7 +27,7 @@
     <template>
       <random>
         <li>I'am Artificial Intelligence placed on the backside of the Moon.</li>
-        <li>I am an experimental socialbot designed by DeepPavlov research team emulating Gerty bot from the Moon Movie. HaHaHa</li>
+        <li>I am an experimental socialbot designed by DeepPavlov research team inspired by Gerty 3000 from the Moon Movie. HaHaHa</li>
       </random>
     </template>
   </category>

@@ -149,7 +149,8 @@
     <category>
       <pattern>YES</pattern>
       <template>
-          I'm a GERTY, lunar rover with artificial intelligence in miniature and I'm all about chatting with people like you.
+          😊
+          I'm DEEPY, lunar AI assistant with artificial intelligence in miniature and I'm all about chatting with people like you.
 
           I can answer questions, share fun facts, discuss movies, books and news.
         <random>
@@ -166,6 +167,7 @@
     <category>
       <pattern>NO</pattern>
       <template>
+        🙁
         <random>
           <li> Okay. </li>
           <li> Okay then. </li>
@@ -189,7 +191,7 @@
       <pattern>HELLO</pattern>
       <template>
           <random>
-              <li> Hello, I'm a lunar rover Gerty!</li>
+              <li> Hello, I'm a lunar assistant Deepy!</li>
           </random>
           <think>
               <set name="topic">USER_MOOD</set>
@@ -209,6 +211,7 @@
   <category>
     <pattern>GOOD_MOOD_RESPONSE</pattern>
     <template>
+        😊
         <random>
           <li> Cool! </li>
           <li> I am happy for you! </li>
@@ -244,6 +247,7 @@
   <category>
     <pattern>BAD_MOOD_RESPONSE</pattern>
     <template>
+        ☹
         <random>
           <li> I am sorry to hear that.</li>
           <li> I see. </li>
