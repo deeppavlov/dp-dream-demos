@@ -15,7 +15,7 @@
         "1": "stall",
         "2": "optimal",
         "3": "inactive",
-        "4": "optimal"
+        "4": "full"
     },
     "rovers": {
         "1": "inactive",

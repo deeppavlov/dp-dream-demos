@@ -75,7 +75,7 @@ RESPONSES = {
     "all_statuses_request": [
         "Of TOTAL_N_HARVESTERS harvesters, harvester FULL_IDS is full, harvester WORKING_IDS is working,"
         " harvester BROKEN_IDS is awaiting repaires, harvester INACTIVE_IDS is inactive."
-    ],
+    ],    
     "status_request": [
         "The harvester ID is STATUS."
     ],
@@ -115,8 +115,8 @@ RESPONSES = {
         "required": {"rovers": "inactive"}
     },
     "trip_request": {
-        "yes": "Prepare rover ROVER_FOR_TRIP_ID for a trip.",
-        "no": "Can't prepare a rover for a trip, no available rovers.",
+        "yes": "😊 Preparing rover ROVER_FOR_TRIP_ID for a trip.",
+        "no": "🙁 Can't prepare a rover for a trip, no available rovers.",
         "required": {"rovers": "available"}
     },
     "not_relevant": [

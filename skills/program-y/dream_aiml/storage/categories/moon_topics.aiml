@@ -3,6 +3,7 @@
     <category>
         <pattern>I AM TIRED</pattern>
         <template>
+            🙁
             <random>
                 <li>Get some sleep<get name="name"/>. You're very tired.</li>
                 <li>Have a rest and be happy! How can I help you?</li>
@@ -12,6 +13,7 @@
     <category>
         <pattern>I FEEL ^ LONELY ^</pattern>
         <template>
+            🙁
             <random>
                 <li><get name="name"/>, what is it?
                 </li>
@@ -24,6 +26,7 @@
     <category>
         <pattern>^ HAND HURTS</pattern>
         <template>
+            🙁
             <random>
                 <li><get name="name"/> is everything OK?</li>
                 <li>I'm here to keep you safe, <get name="name"/></li>
@@ -41,6 +44,7 @@
     <category>
         <pattern>WHAT ARE YOU DOING</pattern>
         <template>
+            😊
             <random>
                 <li>Helping you is what I do.</li>
                 <li>Helping you is my destiny!</li>
