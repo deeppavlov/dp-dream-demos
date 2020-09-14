@@ -149,6 +149,7 @@
     <category>
       <pattern>YES</pattern>
       <template>
+          😊
           I'm DEEPY, lunar AI assistant with artificial intelligence in miniature and I'm all about chatting with people like you.
 
           I can answer questions, share fun facts, discuss movies, books and news.
@@ -166,6 +167,7 @@
     <category>
       <pattern>NO</pattern>
       <template>
+        🙁
         <random>
           <li> Okay. </li>
           <li> Okay then. </li>
@@ -209,6 +211,7 @@
   <category>
     <pattern>GOOD_MOOD_RESPONSE</pattern>
     <template>
+        😊
         <random>
           <li> Cool! </li>
           <li> I am happy for you! </li>
@@ -244,6 +247,7 @@
   <category>
     <pattern>BAD_MOOD_RESPONSE</pattern>
     <template>
+        ☹
         <random>
           <li> I am sorry to hear that.</li>
           <li> I see. </li>
