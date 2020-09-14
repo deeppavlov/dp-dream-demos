@@ -128,3 +128,5 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+demo_output_04.wav
+gerty_sample_3.wav

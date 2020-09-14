@@ -61,4 +61,6 @@ services:
       context: clone_tts
     ports:
       - 4344:4344
+    environment:
+      - CUDA_VISIBLE_DEVICES=0
 version: "3.7"
