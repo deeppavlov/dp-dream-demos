@@ -149,7 +149,7 @@
     <category>
       <pattern>YES</pattern>
       <template>
-          I'm a GERTY, lunar rover with artificial intelligence in miniature and I'm all about chatting with people like you.
+          I'm DEEPY, lunar AI assistant with artificial intelligence in miniature and I'm all about chatting with people like you.
 
           I can answer questions, share fun facts, discuss movies, books and news.
         <random>
@@ -189,7 +189,7 @@
       <pattern>HELLO</pattern>
       <template>
           <random>
-              <li> Hello, I'm a lunar rover Gerty!</li>
+              <li> Hello, I'm a lunar assistant Deepy!</li>
           </random>
           <think>
               <set name="topic">USER_MOOD</set>
