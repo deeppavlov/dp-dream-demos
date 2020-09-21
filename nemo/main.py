@@ -26,5 +26,7 @@ async def infer_asr(user_id: str, file: UploadFile = File(...)):
 
 @app.post('/tts')
 async def infer_tts(text: str):
-    audio_response = tts([text])[0]
+    response = re.sub(r'([0-9]+)', lambda x: num2words(x.group(0)), text)
+    print(f'response is "{response}"')
+    audio_response = tts([response])[0]
     return StreamingResponse(audio_response, media_type='audio/x-wav')
