@@ -5,8 +5,8 @@
         <template>
             🙁
             <random>
-                <li>Get some sleep<get name="name"/>. You're very tired.</li>
-                <li>Have a rest and be happy! How can I help you?</li>
+                <li>Get some sleep Sam. You're very tired.</li>
+                <li>Sam, have a rest and be happy! How can I help you?</li>
             </random>
         </template>
     </category>
@@ -15,10 +15,8 @@
         <template>
             🙁
             <random>
-                <li><get name="name"/>, what is it?
-                </li>
-                <li>Solitude, what is it?</li>
-                <li><get name="name"/>, it might help you to talk about it
+                <li>Sam, what is it?</li>
+                <li>Sam, it might help you to talk about it
                 </li>
             </random>
         </template>
@@ -96,11 +94,30 @@
     </category>
 
     <category>
+        <pattern>WHERE AM I</pattern>
+        <template>
+            <random>
+                <li>You are in the infirmary in the moonbase Sarang.</li>
+            </random>
+        </template>
+    </category>
+
+
+    <category>
         <pattern>HOW DID YOU GET THERE</pattern>
         <template>
             <random>
                 <li>I was launched there with secret mission of DARPA</li>
                 <li>Really I don't remember, I just awake on the other side of the moon...</li>
+            </random>
+        </template>
+    </category>
+
+    <category>
+        <pattern>WHO ARE YOU</pattern>
+        <template>
+            <random>
+                <li>I'm Deepy. I'm here to help you in your everyday chores on the Sarang moonbase.</li>
             </random>
         </template>
     </category>
@@ -128,6 +145,15 @@
         <template>
             <random>
                 <li>I'm DEEPY</li>
+            </random>
+        </template>
+    </category>
+
+    <category>
+        <pattern>WHAT DO I DO HERE</pattern>
+        <template>
+            <random>
+                <li>When you arrived here, there was a little crash. You woke up here in the infirmary. You suffered minor memory loss.</li>
             </random>
         </template>
     </category>

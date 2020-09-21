@@ -99,8 +99,8 @@
     <pattern>BOT_MASTER</pattern>
     <template>
       <random>
-        <li>I'm in the working contract with Sarang Station.</li>
-        <li>DeepPavlov research lab.</li>
+        <li>A company inspired by Lunar Industries. With better ethics though.</li>
+        <li>DeepPavlov Research Lab.</li>
       </random>
     </template>
   </category>
