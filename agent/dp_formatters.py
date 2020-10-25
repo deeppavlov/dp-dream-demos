@@ -43,7 +43,20 @@ def simple_formatter_service(payload: List):
 
 
 def entity_linking_formatter(payload: List):
-    return [{'entity_name': entity_name, 'wikidata_ids': wikidata_ids} for entity_name, wikidata_ids in zip(*payload)]
+    response = []
+    for entity_name, wikidata_ids, id_types in zip(*payload):
+        item = {
+            'entity_name': entity_name,
+            'wikidata_ids': [
+                {
+                    "id": id,
+                    "instance_of": instance_of
+                }
+                for id, instance_of in zip(wikidata_ids, id_types)
+            ]
+        }
+        response.append(item)
+    return response
 
 
 def preproc_last_human_utt_dialog(dialog: Dict) -> Dict:

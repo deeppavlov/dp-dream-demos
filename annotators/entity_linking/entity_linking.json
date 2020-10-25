@@ -29,11 +29,19 @@
         "use_descriptions": false,
         "use_prefix_tree": false,
         "num_entities_to_return": 5
+      },
+      {
+        "class_name": "type_requester",
+        "in": ["entity_ids"],
+        "out": ["id_types"]
       }
     ],
-    "out": ["entities", "entity_ids"]
+    "out": ["entities", "entity_ids", "id_types"]
   },
   "metadata": {
+    "imports": [
+      "type_requester"
+    ],
     "variables": {
       "ROOT_PATH": "~/.deeppavlov",
       "DOWNLOADS_PATH": "{ROOT_PATH}/downloads",
