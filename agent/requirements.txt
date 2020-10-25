@@ -1,4 +1,4 @@
-git+git://github.com/deepmipt/dp-agent.git@cb78f97cd30c9fd88ee2130fb37d23ff561f245b
+git+git://github.com/deepmipt/dp-agent.git@df1ecae5eff0482b8fedc4e30c767b54b3034208
 sentry-sdk==0.14.1
 flask==1.1.1
 gunicorn==19.9.0

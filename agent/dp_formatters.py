@@ -41,6 +41,11 @@ def simple_formatter_service(payload: List):
     logging.info('answer ' + str(payload))
     return payload
 
+
+def entity_linking_formatter(payload: List):
+    return [{'entity_name': entity_name, 'wikidata_ids': wikidata_ids} for entity_name, wikidata_ids in zip(*payload)]
+
+
 def preproc_last_human_utt_dialog(dialog: Dict) -> Dict:
     # Used by: sentseg over human uttrs
     return [{'sentences': [dialog['human_utterances'][-1]['annotations']["spelling_preprocessing"]]}]
