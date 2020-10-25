@@ -21,57 +21,57 @@ app = Flask(__name__)
 
 
 
-def update_database():
-    """Update database loading new version every our
-    """
-    with open("harvesters_status.json", "r") as f:
-        db = json.load(f)
-    return db, time.time()
+# def update_database():
+#     """Update database loading new version every our
+#     """
+#     with open("harvesters_status.json", "r") as f:
+#         db = json.load(f)
+#     return db, time.time()
 
 
-DATABASE, PREV_UPDATE_TIME = update_database()
+# DATABASE, PREV_UPDATE_TIME = update_database()
 
 
-def get_ids_with_statuses(status, object="harvester"):
-    """Return ids of objects with given (inner) status
-    """
-    if len(status) == 0:
-        return []
-    if object == "harvester":
-        status_map = {"working": ["optimal", "suboptimal"],
-                      "full": ["full"],
-                      "stall": ["stall"],
-                      "inactive": ["inactive"]}
-        statuses = status_map[status]
-    else:
-        statuses = [status]
+# def get_ids_with_statuses(status, object="harvester"):
+#     """Return ids of objects with given (inner) status
+#     """
+#     if len(status) == 0:
+#         return []
+#     if object == "harvester":
+#         status_map = {"working": ["optimal", "suboptimal"],
+#                       "full": ["full"],
+#                       "stall": ["stall"],
+#                       "inactive": ["inactive"]}
+#         statuses = status_map[status]
+#     else:
+#         statuses = [status]
 
-    ids = []
-    for str_id in DATABASE[f"{object}s"]:
-        if DATABASE[f"{object}s"][str_id] in statuses:
-            ids.append(str_id)
-    return ids
+#     ids = []
+#     for str_id in DATABASE[f"{object}s"]:
+#         if DATABASE[f"{object}s"][str_id] in statuses:
+#             ids.append(str_id)
+#     return ids
 
 
-def get_statuses_with_ids(ids, object="harvester"):
-    """Return (inner) statuses of objects with given ids
-    """
-    # harvesters statuses are out of ["full", "working", "stall", "inactive"]
-    if object == "harvester":
-        status_map = {"optimal": "working",
-                      "suboptimal": "working",
-                      "full": "full",
-                      "stall": "stall",
-                      "inactive": "inactive"}
-    else:
-        status_map = {"available": "available",
-                      "stall": "stall",
-                      "inactive": "inactive"}
+# def get_statuses_with_ids(ids, object="harvester"):
+#     """Return (inner) statuses of objects with given ids
+#     """
+#     # harvesters statuses are out of ["full", "working", "stall", "inactive"]
+#     if object == "harvester":
+#         status_map = {"optimal": "working",
+#                       "suboptimal": "working",
+#                       "full": "full",
+#                       "stall": "stall",
+#                       "inactive": "inactive"}
+#     else:
+#         status_map = {"available": "available",
+#                       "stall": "stall",
+#                       "inactive": "inactive"}
 
-    statuses = []
-    for str_id in ids:
-        statuses.append(status_map[DATABASE[f"{object}s"][str_id]])
-    return statuses
+#     statuses = []
+#     for str_id in ids:
+#         statuses.append(status_map[DATABASE[f"{object}s"][str_id]])
+#     return statuses
 
 
 # def fill_in_particular_status(response, ids, template_to_fill, object="harvester"):
@@ -131,65 +131,75 @@ def get_statuses_with_ids(ids, object="harvester"):
 #     return response
 
 
-def generate_response_from_db(intent, utterance):
-    global PREV_UPDATE_TIME
-    if time.time() - PREV_UPDATE_TIME >= 3600:
-        DATABASE, PREV_UPDATE_TIME = update_database()
+# def generate_response_from_db(intent, utterance):
+#     global PREV_UPDATE_TIME
+#     if time.time() - PREV_UPDATE_TIME >= 3600:
+#         DATABASE, PREV_UPDATE_TIME = update_database()
 
-    response = ""
-    responses_collection = RESPONSES[intent]
-    if isinstance(responses_collection, list):
-        response = random.choice(responses_collection)
-    elif isinstance(responses_collection, dict):
-        required_statuses = responses_collection.get("required", {}).get("harvesters", "")
-        if len(required_statuses) == 0:
-            required_statuses = responses_collection.get("required", {}).get("rovers", "")
-            ids = get_ids_with_statuses(required_statuses, object="rover")
-        else:
-            ids = get_ids_with_statuses(required_statuses, object="harvester")
+#     response = ""
+#     responses_collection = RESPONSES[intent]
+#     if isinstance(responses_collection, list):
+#         response = random.choice(responses_collection)
+#     elif isinstance(responses_collection, dict):
+#         required_statuses = responses_collection.get("required", {}).get("harvesters", "")
+#         if len(required_statuses) == 0:
+#             required_statuses = responses_collection.get("required", {}).get("rovers", "")
+#             ids = get_ids_with_statuses(required_statuses, object="rover")
+#         else:
+#             ids = get_ids_with_statuses(required_statuses, object="harvester")
 
-        if len(required_statuses) == 0 or (len(required_statuses) > 0 and len(ids) > 0):
-            response = responses_collection["yes"]
-        else:
-            response = responses_collection["no"]
+#         if len(required_statuses) == 0 or (len(required_statuses) > 0 and len(ids) > 0):
+#             response = responses_collection["yes"]
+#         else:
+#             response = responses_collection["no"]
 
-    response = fill_harvesters_status_templates(response, utterance)
+#     response = fill_harvesters_status_templates(response, utterance)
 
-    if intent == "not_relevant":
-        confidence = 0.5
-    else:
-        confidence = 1.0
+#     if intent == "not_relevant":
+#         confidence = 0.5
+#     else:
+#         confidence = 1.0
 
-    return response, confidence
+#     return response, confidence
 
 
-@app.route("/respond", methods=["POST"])
-def respond():
-    st_time = time.time()
+@app.route("/test", methods=["POST"])
+def test():
+    human_uttr = request.json["human_uttr"]
 
-    dialogs = request.json["dialogs"]
+    # uttr_response, confidence = gobot.call(sentence)
+    # response = gobot.generateNlg(uttr_response, DATABASE)
 
-    responses = []
-    confidences = []
+    return "Hello world"
 
-    for dialog in dialogs:
-        sentence = dialog['human_utterances'][-1]['annotations'].get("spelling_preprocessing")
-        if sentence is None:
-            logger.warning('Not found spelling preprocessing annotation')
-            sentence = dialog['human_utterances'][-1]['text']
-        # intent = detect_intent(sentence)
-        # logger.info(f"Found intent {intent} in user request {sentence}")
-        # response, confidence = generate_response_from_db(intent, sentence)
 
-        uttr_response, confidence = gobot.call(sentence)
-        response = gobot.generateNlg(uttr_response, DATABASE)
+# @app.route("/respond", methods=["POST"])
+# def respond():
+#     st_time = time.time()
 
-        responses.append(response)
-        confidences.append(confidence)
+#     dialogs = request.json["dialogs"]
 
-    total_time = time.time() - st_time
-    logger.info(f"harvesters_maintenance_gobot_skill exec time = {total_time:.3f}s")
-    return jsonify(list(zip(responses, confidences)))
+#     responses = []
+#     confidences = []
+
+#     for dialog in dialogs:
+#         sentence = dialog['human_utterances'][-1]['annotations'].get("spelling_preprocessing")
+#         if sentence is None:
+#             logger.warning('Not found spelling preprocessing annotation')
+#             sentence = dialog['human_utterances'][-1]['text']
+#         # intent = detect_intent(sentence)
+#         # logger.info(f"Found intent {intent} in user request {sentence}")
+#         # response, confidence = generate_response_from_db(intent, sentence)
+
+#         uttr_response, confidence = gobot.call(sentence)
+#         response = gobot.generateNlg(uttr_response, DATABASE)
+
+#         responses.append(response)
+#         confidences.append(confidence)
+
+#     total_time = time.time() - st_time
+#     logger.info(f"harvesters_maintenance_gobot_skill exec time = {total_time:.3f}s")
+#     return jsonify(list(zip(responses, confidences)))
 
 
 if __name__ == "__main__":
