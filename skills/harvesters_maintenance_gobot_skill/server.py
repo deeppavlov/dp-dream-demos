@@ -8,198 +8,207 @@ import json
 
 from flask import Flask, request, jsonify
 from os import getenv
-import sentry_sdk
+
+from deeppavlov import build_model
+from deeppavlov.core.common.file import read_yaml, read_json
+from deeppavlov.utils.pip_wrapper.pip_wrapper import install_from_config
 
 
-sentry_sdk.init(getenv("SENTRY_DSN"))
+install_from_config("gobot_simple_dstc2")
+
+
 
 logging.basicConfig(format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
 
+class GoBotWrapper():
+    def __init__(self, gobot_config_path):
 
 
+        gobot_config = read_json(gobot_config_path)        
+        domain_yml_path = "dp_minimal_demo_dir/domain.yml" #gobot_config["chainer"]["pipe"][-1]["tracker"]["domain_yml_path"]
+        
+        self.response_templates = read_yaml(domain_yml_path)["responses"]
+        self.gobot = build_model(gobot_config)
 
-# def update_database():
-#     """Update database loading new version every our
-#     """
-#     with open("harvesters_status.json", "r") as f:
-#         db = json.load(f)
-#     return db, time.time()
+        self.DATABASE, self.PREV_UPDATE_TIME = self._update_database()
 
-
-# DATABASE, PREV_UPDATE_TIME = update_database()
-
-
-# def get_ids_with_statuses(status, object="harvester"):
-#     """Return ids of objects with given (inner) status
-#     """
-#     if len(status) == 0:
-#         return []
-#     if object == "harvester":
-#         status_map = {"working": ["optimal", "suboptimal"],
-#                       "full": ["full"],
-#                       "stall": ["stall"],
-#                       "inactive": ["inactive"]}
-#         statuses = status_map[status]
-#     else:
-#         statuses = [status]
-
-#     ids = []
-#     for str_id in DATABASE[f"{object}s"]:
-#         if DATABASE[f"{object}s"][str_id] in statuses:
-#             ids.append(str_id)
-#     return ids
+    
+    def call(self, sentence):
+        gobot_response = self.gobot([sentence])[0][0]
+        uttr_response_action = gobot_response.actions_tuple
+        confidence = gobot_response.policy_prediction.probs[gobot_response.policy_prediction.predicted_action_ix]
+        confidence = confidence.astype(float)
+        uttr_slots = self.gobot.pipe[-1][-1].nlu_manager.nlu(sentence).slots
+        return {"act": uttr_response_action, "slots": uttr_slots}, confidence
 
 
-# def get_statuses_with_ids(ids, object="harvester"):
-#     """Return (inner) statuses of objects with given ids
-#     """
-#     # harvesters statuses are out of ["full", "working", "stall", "inactive"]
-#     if object == "harvester":
-#         status_map = {"optimal": "working",
-#                       "suboptimal": "working",
-#                       "full": "full",
-#                       "stall": "stall",
-#                       "inactive": "inactive"}
-#     else:
-#         status_map = {"available": "available",
-#                       "stall": "stall",
-#                       "inactive": "inactive"}
+    def getNlg(self, gobot_response):
+        act = gobot_response["act"][0]
+        slots = gobot_response["slots"]
+        response_template = self.response_templates[act][0]["text"]
+        generated = self._generate_response_from_db(response_template, slots)
+        return generated
 
-#     statuses = []
-#     for str_id in ids:
-#         statuses.append(status_map[DATABASE[f"{object}s"][str_id]])
-#     return statuses
+    
+    def _update_database(self):
+        """Update database loading new version every our
+        """
+        with open("harvesters_status.json", "r") as f:
+            db = json.load(f)
+        return db, time.time()
 
+    def _get_ids_with_statuses(self, status, object="harvester"):
+        """Return ids of objects with given (inner) status
+        """
+        if len(status) == 0:
+            return []
+        if object == "harvester":
+            status_map = {"working": ["optimal", "suboptimal"],
+                        "full": ["full"],
+                        "stall": ["stall"],
+                        "inactive": ["inactive"]}
+            statuses = status_map[status]
+        else:
+            statuses = [status]
 
-# def fill_in_particular_status(response, ids, template_to_fill, object="harvester"):
-#     """Replaces `template_to_fill` (e.g. `FULL_IDS`) in templated response to objects with given `ids`
-#     """
-#     if len(ids) == 0:
-#         response = response.replace(f"{object} {template_to_fill} is", "none is")
-#     elif len(ids) == 1:
-#         response = response.replace(f"{template_to_fill}", str(ids[0]))
-#     else:
-#         response = response.replace(f"{object} {template_to_fill} is",
-#                                     f"{object}s {', '.join(ids)} are")
-#     return response
+        ids = []
+        for str_id in self.DATABASE[f"{object}s"]:
+            if self.DATABASE[f"{object}s"][str_id] in statuses:
+                ids.append(str_id)
+        return ids
 
+    def _get_statuses_with_ids(self, ids, object="harvester"):
+        """Return (inner) statuses of objects with given ids
+        """
+        # harvesters statuses are out of ["full", "working", "stall", "inactive"]
+        if object == "harvester":
+            status_map = {"optimal": "working",
+                        "suboptimal": "working",
+                        "full": "full",
+                        "stall": "stall",
+                        "inactive": "inactive"}
+        else:
+            status_map = {"available": "available",
+                        "stall": "stall",
+                        "inactive": "inactive"}
 
-# def fill_harvesters_status_templates(response, request_text):
-#     """Fill all variables in the templated response
-#     """
-#     full_ids = get_ids_with_statuses("full")
-#     working_ids = get_ids_with_statuses("working")
-#     broken_ids = get_ids_with_statuses("stall")
-#     inactive_ids = get_ids_with_statuses("inactive")
-
-#     available_rovers_ids = get_ids_with_statuses("available", object="rover")
-#     inactive_rovers_ids = get_ids_with_statuses("inactive", object="rover")
-#     broken_rovers_ids = get_ids_with_statuses("stall", object="rover")
-
-#     response = response.replace("TOTAL_N_HARVESTERS", str(len(DATABASE["harvesters"])))
-
-#     response = fill_in_particular_status(response, full_ids, "FULL_IDS", "harvester")
-#     response = fill_in_particular_status(response, working_ids, "WORKING_IDS", "harvester")
-#     response = fill_in_particular_status(response, broken_ids, "BROKEN_IDS", "harvester")
-#     response = fill_in_particular_status(response, inactive_ids, "INACTIVE_IDS", "harvester")
-
-#     response = fill_in_particular_status(response, available_rovers_ids, "AVAILABLE_ROVER_IDS", "rover")
-#     response = fill_in_particular_status(response, inactive_rovers_ids, "INACTIVE_ROVER_IDS", "rover")
-#     response = fill_in_particular_status(response, broken_rovers_ids, "BROKEN_ROVER_IDS", "rover")
-
-#     if len(available_rovers_ids) == 1:
-#         avail_rover_id = available_rovers_ids[0]
-#     elif len(available_rovers_ids) > 1:
-#         avail_rover_id = random.choice(available_rovers_ids)
-#     response = response.replace("ROVER_FOR_TRIP_ID", f"{avail_rover_id}")
-
-#     if "ID" in response:
-#         required_id = re.search(r"[0-9]+", request_text)
-#         if required_id:
-#             required_id = required_id[0]
-#         if required_id and required_id in DATABASE["harvesters"]:
-#             status = get_statuses_with_ids([required_id])[0]
-#             response = response.replace("ID", required_id)
-#             response = response.replace("STATUS", status)
-#         else:
-#             response = f"I can answer only about the following harvesters ids: " \
-#                        f"{', '.join(DATABASE['harvesters'].keys())}."
-
-#     return response
+        statuses = []
+        for str_id in ids:
+            statuses.append(status_map[self.DATABASE[f"{object}s"][str_id]])
+        return statuses
 
 
-# def generate_response_from_db(intent, utterance):
-#     global PREV_UPDATE_TIME
-#     if time.time() - PREV_UPDATE_TIME >= 3600:
-#         DATABASE, PREV_UPDATE_TIME = update_database()
+    def _fill_in_particular_status(self, response, ids, template_to_fill, object="harvester"):
+        """Replaces `template_to_fill` (e.g. `full_ids`) in templated response to objects with given `ids`
+        """
+        template_to_fill = '{'+template_to_fill+'}'
+        if len(ids) == 0:
+            response = response.replace(f"{object} {template_to_fill} is", "none is")
+        elif len(ids) == 1:
+            response = response.replace(f"{template_to_fill}", str(ids[0]))
+        else:
+            response = response.replace(f"{object} {template_to_fill} is",
+                                        f"{object}s {', '.join(ids)} are")
+        return response
 
-#     response = ""
-#     responses_collection = RESPONSES[intent]
-#     if isinstance(responses_collection, list):
-#         response = random.choice(responses_collection)
-#     elif isinstance(responses_collection, dict):
-#         required_statuses = responses_collection.get("required", {}).get("harvesters", "")
-#         if len(required_statuses) == 0:
-#             required_statuses = responses_collection.get("required", {}).get("rovers", "")
-#             ids = get_ids_with_statuses(required_statuses, object="rover")
-#         else:
-#             ids = get_ids_with_statuses(required_statuses, object="harvester")
 
-#         if len(required_statuses) == 0 or (len(required_statuses) > 0 and len(ids) > 0):
-#             response = responses_collection["yes"]
-#         else:
-#             response = responses_collection["no"]
+    def _fill_harvesters_status_templates(self, response, slots):
+        """Fill all variables in the templated response
+        """
+        full_ids = self._get_ids_with_statuses("full")
+        working_ids = self._get_ids_with_statuses("working")
+        broken_ids = self._get_ids_with_statuses("stall")
+        inactive_ids = self._get_ids_with_statuses("inactive")
 
-#     response = fill_harvesters_status_templates(response, utterance)
+        available_rovers_ids = self._get_ids_with_statuses("available", object="rover")
+        inactive_rovers_ids = self._get_ids_with_statuses("inactive", object="rover")
+        broken_rovers_ids = self._get_ids_with_statuses("stall", object="rover")
 
-#     if intent == "not_relevant":
-#         confidence = 0.5
-#     else:
-#         confidence = 1.0
+        response = response.replace("total_harvesters_number", str(len(self.DATABASE["harvesters"])))
 
-#     return response, confidence
+        response = self._fill_in_particular_status(response, full_ids, "full_ids", "harvester")
+        response = self._fill_in_particular_status(response, working_ids, "working_ids", "harvester")
+        response = self._fill_in_particular_status(response, broken_ids, "broken_ids", "harvester")
+        response = self._fill_in_particular_status(response, inactive_ids, "inactive_ids", "harvester")
+
+        response = self._fill_in_particular_status(response, available_rovers_ids, "available_rover_ids", "rover")
+        response = self._fill_in_particular_status(response, inactive_rovers_ids, "inactive_rover_ids", "rover")
+        response = self._fill_in_particular_status(response, broken_rovers_ids, "broken_rover_ids", "rover")
+
+        if len(available_rovers_ids) == 1:
+            avail_rover_id = available_rovers_ids[0]
+        elif len(available_rovers_ids) > 1:
+            avail_rover_id = random.choice(available_rovers_ids)
+        response = response.replace("rover_for_trip_id", f"{avail_rover_id}")
+
+        if "_id" in response:
+            required_id = slots.get("number")  # re.search(r"[0-9]+", request_text)
+            print(required_id)
+            if required_id is not None:
+                required_id = required_id[0]
+            if required_id is not None and required_id in self.DATABASE["harvesters"]:
+                status = self._get_statuses_with_ids([required_id])[0]
+                response = response.replace("harvester_id", required_id)
+                response = response.replace("harvester_status", status)
+            else:
+                response = f"I can answer only about the following harvesters ids: " \
+                        f"{', '.join(self.DATABASE['harvesters'].keys())}."
+
+        return response
+
+
+    def _generate_response_from_db(self, response, slots):
+        if time.time() - self.PREV_UPDATE_TIME >= 3600:
+            self.DATABASE, self.PREV_UPDATE_TIME = self._update_database()
+
+        response = self._fill_harvesters_status_templates(response, slots)
+        
+        return response
+
+gobot = GoBotWrapper("dp_minimal_demo_dir/gobot_config.json")
 
 
 @app.route("/test", methods=["POST"])
 def test():
     human_uttr = request.json["human_uttr"]
 
-    # uttr_response, confidence = gobot.call(sentence)
-    # response = gobot.generateNlg(uttr_response, DATABASE)
+    return f"Hello {human_uttr}"
 
-    return "Hello world"
+@app.route("/reset", methods=["GET"])
+def reset():
+    logger.info("resetting the gobot")
+    gobot.gobot.reset()
+    return ('', 204)
 
 
-# @app.route("/respond", methods=["POST"])
-# def respond():
-#     st_time = time.time()
+@app.route("/respond", methods=["POST"])
+def respond():
+    st_time = time.time()
 
-#     dialogs = request.json["dialogs"]
+    dialogs = request.json["dialogs"]
 
-#     responses = []
-#     confidences = []
+    responses = []
+    confidences = []
 
-#     for dialog in dialogs:
-#         sentence = dialog['human_utterances'][-1]['annotations'].get("spelling_preprocessing")
-#         if sentence is None:
-#             logger.warning('Not found spelling preprocessing annotation')
-#             sentence = dialog['human_utterances'][-1]['text']
-#         # intent = detect_intent(sentence)
-#         # logger.info(f"Found intent {intent} in user request {sentence}")
-#         # response, confidence = generate_response_from_db(intent, sentence)
+    for dialog in dialogs:
+        sentence = dialog['human_utterances'][-1]['annotations'].get("spelling_preprocessing")
+        if sentence is None:
+            logger.warning('Not found spelling preprocessing annotation')
+            sentence = dialog['human_utterances'][-1]['text']
 
-#         uttr_response, confidence = gobot.call(sentence)
-#         response = gobot.generateNlg(uttr_response, DATABASE)
+        uttr_resp, conf = gobot.call(sentence)
+        response = gobot.getNlg(uttr_resp)
 
-#         responses.append(response)
-#         confidences.append(confidence)
+        responses.append(response)
+        confidences.append(conf)
 
-#     total_time = time.time() - st_time
-#     logger.info(f"harvesters_maintenance_gobot_skill exec time = {total_time:.3f}s")
-#     return jsonify(list(zip(responses, confidences)))
+    total_time = time.time() - st_time
+    logger.info(f"harvesters_maintenance_gobot_skill exec time = {total_time:.3f}s")
+
+    return jsonify(list(zip(responses, confidences)))
 
 
 if __name__ == "__main__":
