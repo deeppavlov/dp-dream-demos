@@ -1,0 +1,25 @@
+
+
+9	B-number
+harvester   O	
+status	O
+
+9	B-number
+combine   O	
+status	O
+
+harvester   O	
+9	B-number
+status	O
+
+combine   O	
+9	B-number
+status	O
+
+status	O
+harvester   O	
+9	B-number
+
+status	O
+combine   O	
+9	B-number

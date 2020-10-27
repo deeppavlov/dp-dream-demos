@@ -39,10 +39,10 @@
             }
         },
         "skills": {
-            "harvesters_maintenance_skill": {
+            "harvesters_maintenance_gobot_skill": {
                 "connector": {
                     "protocol": "http",
-                    "url": "http://harvesters_maintenance_skill:3002/respond"
+                    "url": "http://harvesters_maintenance_gobot_skill:3008/respond"
                 },
                 "dialog_formatter": "dp_formatters:full_dialog",
                 "response_formatter": "dp_formatters:base_skill_formatter",

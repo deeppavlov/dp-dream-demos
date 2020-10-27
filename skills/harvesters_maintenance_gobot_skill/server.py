@@ -42,6 +42,8 @@ class GoBotWrapper():
         confidence = gobot_response.policy_prediction.probs[gobot_response.policy_prediction.predicted_action_ix]
         confidence = confidence.astype(float)
         uttr_slots = self.gobot.pipe[-1][-1].nlu_manager.nlu(sentence).slots
+
+        print("utter slots: ", uttr_slots, "uttr: ", sentence,  flush=True)
         return {"act": uttr_response_action, "slots": uttr_slots}, confidence
 
 
@@ -144,6 +146,8 @@ class GoBotWrapper():
             avail_rover_id = random.choice(available_rovers_ids)
         response = response.replace("rover_for_trip_id", f"{avail_rover_id}")
 
+        logger.info("slots: ", slots)
+        print("slots: ", slots, flush=True)
         if "_id" in response:
             required_id = slots.get("number")  # re.search(r"[0-9]+", request_text)
             print(required_id)
@@ -157,6 +161,7 @@ class GoBotWrapper():
                 response = f"I can answer only about the following harvesters ids: " \
                         f"{', '.join(self.DATABASE['harvesters'].keys())}."
 
+        response = response.replace('{', '').replace('}', '')
         return response
 
 
