@@ -1,2 +1,0 @@
-model_checkpoint_path: "/content/dp_minimal_demo_dir/ner/ner_conll2003/model_no_pos"
-all_model_checkpoint_paths: "/content/dp_minimal_demo_dir/ner/ner_conll2003/model_no_pos"
