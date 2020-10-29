@@ -4,7 +4,7 @@
     "pipe": [
       {
         "class_name": "nemo_tts",
-        "nemo_params_path": "{TTS_PATH}/tacotron2_waveglow.yaml",
+        "nemo_params_path": "tacotron2_waveglow.yaml",
         "load_path": "{TTS_PATH}",
         "in": ["text"],
         "out": ["audio"]
