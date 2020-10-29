@@ -130,3 +130,5 @@ dmypy.json
 .pyre/
 demo_output_04.wav
 gerty_sample_3.wav
+agent/pipeline_conf_big.json
+pipeline_conf.json
