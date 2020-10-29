@@ -135,3 +135,96 @@ def skill_with_attributes_formatter_service(payload: Dict):
                     result[i][key] = hyp[-1][key]
 
     return result
+
+
+def replace_with_annotated_utterances(dialog, mode="punct_sent"):
+    if mode == "punct_sent":
+        for utt in dialog['utterances']:
+            utt['text'] = utt['annotations']['sentseg']['punct_sent']
+        for utt in dialog['human_utterances']:
+            utt['text'] = utt['annotations']['sentseg']['punct_sent']
+    elif mode == "segments":
+        for utt in dialog['utterances']:
+            utt['text'] = utt['annotations']['sentseg']['segments']
+        for utt in dialog['human_utterances']:
+            utt['text'] = utt['annotations']['sentseg']['segments']
+        for utt in dialog['bot_utterances']:
+            utt['text'] = utt['annotations']['sentseg']['segments']
+    elif mode == "modified_sents":
+        for utt in dialog['utterances']:
+            utt['text'] = utt['annotations']['sentrewrite']['modified_sents'][-1]
+        for utt in dialog['human_utterances']:
+            utt['text'] = utt['annotations']['sentrewrite']['modified_sents'][-1]
+    return dialog
+
+
+def get_last_n_turns(dialog: Dict, bot_last_turns=None, human_last_turns=None, total_last_turns=None):
+    bot_last_turns = bot_last_turns or LAST_N_TURNS
+    human_last_turns = human_last_turns or bot_last_turns + 1
+    total_last_turns = total_last_turns or bot_last_turns * 2 + 1
+    dialog["utterances"] = dialog["utterances"][-total_last_turns:]
+    dialog["human_utterances"] = dialog["human_utterances"][-human_last_turns:]
+    dialog["bot_utterances"] = dialog["bot_utterances"][-bot_last_turns:]
+    return dialog
+
+
+def utt_sentseg_punct_dialog(dialog: Dict):
+    '''
+    Used by: skill_with_attributes_formatter; punct_dialogs_formatter,
+    dummy_skill_formatter, base_response_selector_formatter
+    '''
+    dialog = get_last_n_turns(dialog)
+    dialog = replace_with_annotated_utterances(dialog, mode="punct_sent")
+    return [{'dialogs': [dialog]}]
+
+
+def ner_formatter_dialog(dialog: Dict):
+    # Used by: ner_formatter
+    return [{'last_utterances': [dialog['utterances'][-1]['annotations']['sentseg']['segments']]}]
+
+
+def dp_toxic_formatter_service(payload: List):
+    # Used by: dp_toxic_formatter
+    return payload[0]
+
+
+def last_utt_sentseg_segments_dialog(dialog: Dict):
+    # Used by: intent_catcher_formatter
+    return [{'sentences': [dialog['utterances'][-1]['annotations']['sentseg']['segments']]}]
+
+
+def sent_rewrite_formatter_dialog(dialog: Dict) -> Dict:
+    print('one', flush=True)
+    # Used by: sent_rewrite_formatter
+    dialog = get_last_n_turns(dialog)
+    utterances_histories = []
+    annotation_histories = []
+    print('two', flush=True)
+    for utt in dialog['utterances']:
+        annotation_histories.append(utt['annotations'])
+        utterances_histories.append(utt['annotations']['sentseg']['segments'])
+    return [{
+        'utterances_histories': [utterances_histories],
+        'annotation_histories': [annotation_histories]
+    }]
+
+
+def ner_formatter_last_bot_dialog(dialog: Dict):
+    return [{'last_utterances': [dialog['bot_utterances'][-1]['annotations']['sentseg']['segments']]}]
+
+
+def sent_rewrite_formatter_w_o_last_dialog(dialog: Dict) -> Dict:
+    dialog = get_last_n_turns(dialog, LAST_N_TURNS + 1)
+    utterances_histories = []
+    annotation_histories = []
+    for utt in dialog['utterances'][:-1]:
+        annotation_histories.append(utt['annotations'])
+        utterances_histories.append(utt['annotations']['sentseg']['segments'])
+    return [{
+        'utterances_histories': [utterances_histories],
+        'annotation_histories': [annotation_histories]
+    }]
+
+
+def last_bot_utt_dialog(dialog: Dict) -> Dict:
+    return [{'sentences': [dialog['bot_utterances'][-1]['text']]}]

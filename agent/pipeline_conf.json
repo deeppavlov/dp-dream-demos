@@ -28,6 +28,47 @@
                 "response_formatter": "dp_formatters:simple_formatter_service",
                 "state_manager_method": "add_annotation"
             },
+            "ner": {
+                "connector": "connectors.ner",
+                "dialog_formatter": "dp_formatters:ner_formatter_dialog",
+                "response_formatter": "dp_formatters:simple_formatter_service",
+                "state_manager_method": "add_annotation",
+                "required_previous_services": ["annotators.spelling_preprocessing", "annotators.sentseg"]
+            },
+            "sentrewrite": {
+                "connector": "connectors.sentrewrite",
+                "dialog_formatter": "dp_formatters:sent_rewrite_formatter_dialog",
+                "response_formatter": "dp_formatters:simple_formatter_service",
+                "state_manager_method": "add_annotation",
+                "required_previous_services": ["annotators.spelling_preprocessing", "annotators.sentseg", "annotators.ner"]
+            },
+            "sentseg": {
+                "connector": "connectors.sentseg",
+                "dialog_formatter": "dp_formatters:preproc_last_human_utt_dialog",
+                "response_formatter": "dp_formatters:simple_formatter_service",
+                "required_previous_services": ["annotators.spelling_preprocessing"],
+                "state_manager_method": "add_annotation"
+            },
+            "factoid_classification": {
+                "connector": {
+                    "protocol": "http",
+                    "url": "http://10.11.1.251:8073/factoid_annotations"
+                },
+                "dialog_formatter": "dp_formatters:preproc_last_human_utt_dialog",
+                "response_formatter": "dp_formatters:dp_toxic_formatter_service",
+                "required_previous_services": ["annotators.spelling_preprocessing"],
+                "state_manager_method": "add_annotation"
+            },
+            "intent_catcher": {
+                "connector": {
+                    "protocol": "http",
+                    "url": "http://10.11.1.251:8014/detect"
+                },
+                "dialog_formatter": "dp_formatters:last_utt_sentseg_segments_dialog",
+                "response_formatter": "dp_formatters:simple_formatter_service",
+                "state_manager_method": "add_annotation",
+                "required_previous_services": ["annotators.spelling_preprocessing", "annotators.sentseg"]
+            },
             "entity_linking": {
                 "connector": {
                     "protocol": "http",
@@ -58,6 +99,16 @@
                 "response_formatter": "dp_formatters:skill_with_attributes_formatter_service",
                 "previous_services": ["annotators"],
                 "state_manager_method": "add_hypothesis"
+            },
+            "factoid_qa": {
+                "connector": {
+                    "protocol": "http",
+                    "url": "http://10.11.1.251:8071/respond"
+                },
+                "dialog_formatter": "dp_formatters:utt_sentseg_punct_dialog",
+                "response_formatter": "dp_formatters:skill_with_attributes_formatter_service",
+                "previous_services": ["annotators"],
+                "state_manager_method": "add_hypothesis"
             }
         },
         "response_annotators": {
@@ -73,6 +124,39 @@
               "state_manager_method": "add_hypothesis_annotation_batch"
             }
         },
+        "bot_annotator_selector": {
+            "connector": {
+                "protocol": "python",
+                "class_name": "post_annotator_selector.connector:PostAnnotatorSelectorConnector",
+                "annotator_names": ["sentseg", "ner", "sentrewrite"]
+            },
+            "response_formatter": "dp_formatters:simple_formatter_service",
+            "tags": ["selector"]
+        },
+        "post_annotators": {
+            "sentseg": {
+                "connector": "connectors.sentseg",
+                "dialog_formatter": "dp_formatters:last_bot_utt_dialog",
+                "response_formatter": "dp_formatters:simple_formatter_service",
+                "previous_services": ["bot_annotator_selector"],
+                "state_manager_method": "add_annotation_prev_bot_utt"
+            },
+            "ner": {
+                "connector": "connectors.ner",
+                "dialog_formatter": "dp_formatters:ner_formatter_last_bot_dialog",
+                "response_formatter": "dp_formatters:simple_formatter_service",
+                "required_previous_services": ["bot_annotator_selector", "post_annotators.sentseg"],
+                "state_manager_method": "add_annotation_prev_bot_utt"
+            },
+            "sentrewrite": {
+                "connector": "connectors.sentrewrite",
+                "dialog_formatter": "dp_formatters:sent_rewrite_formatter_w_o_last_dialog",
+                "response_formatter": "dp_formatters:simple_formatter_service",
+                "required_previous_services": ["bot_annotator_selector", "post_annotators.sentseg",
+                    "post_annotators.ner"],
+                "state_manager_method": "add_annotation_prev_bot_utt"
+            }
+        },
         "response_selectors": {
             "rule_based_response_selector": {
                 "connector": {
@@ -86,7 +170,20 @@
             }
         }
     },
-    "connectors": {}
+    "connectors": {
+        "sentseg": {
+            "protocol": "http",
+            "url": "http://10.11.1.251:8011/sentseg"
+        },
+        "ner": {
+            "protocol": "http",
+            "url": "http://10.11.1.251:8021/ner"
+        },
+        "sentrewrite": {
+            "protocol": "http",
+            "url": "http://10.11.1.251:8017/sentrewrite"
+        }
+    }
 }
 
 
