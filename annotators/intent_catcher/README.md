@@ -1,19 +1,18 @@
 ## Description
 
-Детектор интентов. Каждый utterance приходит разбитый на предложения с помощью sentseg, каждое предложение
-эмбеддится с помощью Universal sentence encoder (USE, https://arxiv.org/pdf/1803.11175.pdf).
-В файле `src/detector.py` лежат различные детекторы.
+Intent Catcher. Each utterance is decomposed into sentences using sentseg, each sentence is embedded using an Universal sentence encoder (USE, https://arxiv.org/pdf/1803.11175.pdf).
+You can find a number of various detectors in the `src/detector.py`.
 
-## ВАЖНО:
+## IMPORTANT:
 
-Если вы **заполняете фразы для интентов**, пожалуйста, делайте это внимательно. Интенты не должны пересекаться, это плохо влияет на работу детектора. Добавлять фразы вроде "let's talk about something else" нужно в topic\_switching, а не в lets\_talk\_about. Не нужно добавлять мусорные фразы, где интент был не ясен, или где речь была плохо распознана - это только усложнит работу детектора. Интенты детектятся по сегментам, поэтому пожалуйста, смотрите, на какакой сегмент скорее всего сработал интент, и добавляйте именно его, а не фразу целиком.
+As you **add new phrases to the intents**, please be very careful. Intents should not cross, as that would make a negative impact over the detector. For example, you should add phrases like "let's talk about something else" to topic\_switching not to lets\_talk\_about. Don't add unclear/meaningless phrases where intent isn't clear, or where speech wasn't correctly transcribed - this would only make detector's quality deteriorate. Intents are detected through the segments, so please take the segment of the phrase for the intent, not the whole phrase.
 
-## Описание детекторов:
+## Detectors Descriptions:
 
-- **USESimpleDetector**:  каждое предложение utterance сравнивается по метрике (*cosine similarity*) с предложениями интентов, берется максимум скора по всем предложениям и отсекается по трешхолду, вычисленному заранее.
-- **USERegCombinedDetector**: каждое предложение сначала прогоняется через regexp, если же ни один интент не замэтчился - отправляем предложение в **USESimpleDetector**.
-- **ClassifierDetector**: (линейный) классификатор, обученный поверх эмбеддингов USE.
-- **ClassRegCombinedDetector** (TBD): то же самое что и **USERegCombinedDetector**, только c **ClassifierDetector**.
+- **USESimpleDetector**:  each utterance is compared using the metric (*cosine similarity*) with the intent phrases, max score is obtained over all of these phrases and is cut through the threshold calculated before.
+- **USERegCombinedDetector**: each phrase is sent through the regexp, and if none of the intents were matched, sentence is sent to **USESimpleDetector**.
+- **ClassifierDetector**: (linear) classifier, trained over USE embeddings.
+- **ClassRegCombinedDetector** (TBD): same as **USERegCombinedDetector**, but with **ClassifierDetector**.
 
 ## TODO:
 
@@ -49,12 +48,12 @@
 
 ## Getting started
 
-Чтобы добавить интент, нужно:
- 1. Вписать в `<intent_data_path>/intent_phrases.json` имя вашего интента, фразы/регекспы фраз, по которым будет идти матчинг, допустимые в этом случае знаки пунктуации, а также min_precision - минимально приемлимый precision для подбора трешхолда. \\
- Если вы хотите добавить фразу, чтобы на нее работал regexp (см `RegMD`), но сама модель на нее не обучалась (к примеру, `let's play .*`), то добавить ее нужно в отдельное поле `reg_phrases` в поле интента.
- 2. Затем выполнить `python3 create_data_and_train_model.py`, чтобы обучить модель. Трешхолды будут сохранены в `intent_data.json`
+To add new intent, you should
+ 1. Add a name of your intent to the `<intent_data_path>/intent_phrases.json` file; add phrases/regexps for those phrases, acceptable punctuation symbols, as well as the min_precision - minimally acceptable precision for the threshold. \\
+ If you want a phrase to be manually checked through regexp (see `RegMD`), but not through the trained model (e.g., `let's play .*`), then add it to a separate subelement `reg_phrases` of the intent.
+ 2. Call this script `python3 create_data_and_train_model.py` to train the model. Thresholds will be automatically saved to `intent_data.json`
 
-Пример запуска внутри докера:
+Example for running this command within the Docker Container:
  ```
   python3 /data/create_data_and_train_model.py
  ```
