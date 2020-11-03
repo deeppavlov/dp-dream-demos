@@ -17,7 +17,6 @@ logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
 
-
 class GoBotWrapper():
     def __init__(self, gobot_config_path):
         gobot_config = read_json(f"{gobot_config_path}/gobot_config.json")
@@ -27,16 +26,16 @@ class GoBotWrapper():
         self.gobot = build_model(gobot_config)
 
         self.DATABASE, self.PREV_UPDATE_TIME = self._update_database()
-
+    
     def __call__(self, sentence):
         gobot_response = self.gobot([sentence])[0][0]
+        
         uttr_response_action = gobot_response.actions_tuple
         confidence = gobot_response.policy_prediction.probs[
             gobot_response.policy_prediction.predicted_action_ix]
+        
         confidence = confidence.astype(float)
         uttr_slots = self.gobot.pipe[-1][-1].nlu_manager.nlu(sentence).slots
-
-        print("utter slots: ", uttr_slots, "uttr: ", sentence,  flush=True)
         return {"act": uttr_response_action, "slots": uttr_slots}, confidence
 
     def getNlg(self, gobot_response):
@@ -44,14 +43,16 @@ class GoBotWrapper():
         slots = gobot_response["slots"]
         response_template = self.response_templates.get(act, [{"text": ""}])[
             0]["text"]
+
         generated = self._generate_response_from_storage(
             response_template, slots)
-        return generated
 
+        return generated
+    
     def reset(self):
         self.gobot.reset()
         self("start")
-
+    
     # region storage interaction logic
     def _update_database(self):
         """Update database loading new version every our
@@ -185,7 +186,6 @@ class GoBotWrapper():
 
 gobot = GoBotWrapper("dp_minimal_demo_dir")
 
-
 @app.route("/reset", methods=["GET"])
 def reset():
     logger.info("resetting the gobot")
@@ -205,6 +205,7 @@ def respond():
     for dialog in dialogs:
         sentence = dialog['human_utterances'][-1]['annotations'].get(
             "spelling_preprocessing")
+        
         if sentence is None:
             logger.warning('Not found spelling preprocessing annotation')
             sentence = dialog['human_utterances'][-1]['text']
@@ -218,7 +219,6 @@ def respond():
     total_time = time.time() - st_time
     logger.info(
         f"harvesters_maintenance_gobot_skill exec time = {total_time:.3f}s")
-
     return jsonify(list(zip(responses, confidences)))
 
 
