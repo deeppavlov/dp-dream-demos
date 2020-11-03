@@ -2,7 +2,6 @@
 slots:
   number:
     type: int
-    
 
 intents:
   - all_statuses_request
