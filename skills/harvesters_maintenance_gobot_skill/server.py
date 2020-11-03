@@ -9,7 +9,6 @@ from os import getenv
 
 from deeppavlov import build_model
 from deeppavlov.core.common.file import read_yaml, read_json
-from deeppavlov.utils.pip_wrapper.pip_wrapper import install_from_config
 
 
 logging.basicConfig(
