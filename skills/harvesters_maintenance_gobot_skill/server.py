@@ -12,25 +12,28 @@ from deeppavlov.core.common.file import read_yaml, read_json
 from deeppavlov.utils.pip_wrapper.pip_wrapper import install_from_config
 
 
-logging.basicConfig(format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO)
+logging.basicConfig(
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
 
+
 class GoBotWrapper():
     def __init__(self, gobot_config_path):
-        gobot_config = read_json(f"{gobot_config_path}/gobot_config.json")        
+        gobot_config = read_json(f"{gobot_config_path}/gobot_config.json")
         domain_yml_path = "dp_minimal_demo_dir/domain.yml"
-        
+
         self.response_templates = read_yaml(domain_yml_path)["responses"]
         self.gobot = build_model(gobot_config)
 
         self.DATABASE, self.PREV_UPDATE_TIME = self._update_database()
-    
+
     def __call__(self, sentence):
         gobot_response = self.gobot([sentence])[0][0]
         uttr_response_action = gobot_response.actions_tuple
-        confidence = gobot_response.policy_prediction.probs[gobot_response.policy_prediction.predicted_action_ix]
+        confidence = gobot_response.policy_prediction.probs[
+            gobot_response.policy_prediction.predicted_action_ix]
         confidence = confidence.astype(float)
         uttr_slots = self.gobot.pipe[-1][-1].nlu_manager.nlu(sentence).slots
 
@@ -40,10 +43,16 @@ class GoBotWrapper():
     def getNlg(self, gobot_response):
         act = gobot_response["act"][0]
         slots = gobot_response["slots"]
-        response_template = self.response_templates[act][0]["text"]
-        generated = self._generate_response_from_storage(response_template, slots)
+        response_template = self.response_templates.get(act, [{"text": ""}])[
+            0]["text"]
+        generated = self._generate_response_from_storage(
+            response_template, slots)
         return generated
-    
+
+    def reset(self):
+        self.gobot.reset()
+        self("start")
+
     # region storage interaction logic
     def _update_database(self):
         """Update database loading new version every our
@@ -59,9 +68,9 @@ class GoBotWrapper():
             return []
         if object == "harvester":
             status_map = {"working": ["optimal", "suboptimal"],
-                        "full": ["full"],
-                        "stall": ["stall"],
-                        "inactive": ["inactive"]}
+                          "full": ["full"],
+                          "stall": ["stall"],
+                          "inactive": ["inactive"]}
             statuses = status_map[status]
         else:
             statuses = [status]
@@ -78,14 +87,14 @@ class GoBotWrapper():
         # harvesters statuses are out of ["full", "working", "stall", "inactive"]
         if object == "harvester":
             status_map = {"optimal": "working",
-                        "suboptimal": "working",
-                        "full": "full",
-                        "stall": "stall",
-                        "inactive": "inactive"}
+                          "suboptimal": "working",
+                          "full": "full",
+                          "stall": "stall",
+                          "inactive": "inactive"}
         else:
             status_map = {"available": "available",
-                        "stall": "stall",
-                        "inactive": "inactive"}
+                          "stall": "stall",
+                          "inactive": "inactive"}
 
         statuses = []
         for str_id in ids:
@@ -97,7 +106,8 @@ class GoBotWrapper():
         """
         template_to_fill = '{'+template_to_fill+'}'
         if len(ids) == 0:
-            response = response.replace(f"{object} {template_to_fill} is", "none is")
+            response = response.replace(
+                f"{object} {template_to_fill} is", "none is")
         elif len(ids) == 1:
             response = response.replace(f"{template_to_fill}", str(ids[0]))
         else:
@@ -113,20 +123,31 @@ class GoBotWrapper():
         broken_ids = self._get_ids_with_statuses("stall")
         inactive_ids = self._get_ids_with_statuses("inactive")
 
-        available_rovers_ids = self._get_ids_with_statuses("available", object="rover")
-        inactive_rovers_ids = self._get_ids_with_statuses("inactive", object="rover")
-        broken_rovers_ids = self._get_ids_with_statuses("stall", object="rover")
+        available_rovers_ids = self._get_ids_with_statuses(
+            "available", object="rover")
+        inactive_rovers_ids = self._get_ids_with_statuses(
+            "inactive", object="rover")
+        broken_rovers_ids = self._get_ids_with_statuses(
+            "stall", object="rover")
 
-        response = response.replace("total_harvesters_number", str(len(self.DATABASE["harvesters"])))
+        response = response.replace(
+            "total_harvesters_number", str(len(self.DATABASE["harvesters"])))
 
-        response = self._fill_in_particular_status(response, full_ids, "full_ids", "harvester")
-        response = self._fill_in_particular_status(response, working_ids, "working_ids", "harvester")
-        response = self._fill_in_particular_status(response, broken_ids, "broken_ids", "harvester")
-        response = self._fill_in_particular_status(response, inactive_ids, "inactive_ids", "harvester")
+        response = self._fill_in_particular_status(
+            response, full_ids, "full_ids", "harvester")
+        response = self._fill_in_particular_status(
+            response, working_ids, "working_ids", "harvester")
+        response = self._fill_in_particular_status(
+            response, broken_ids, "broken_ids", "harvester")
+        response = self._fill_in_particular_status(
+            response, inactive_ids, "inactive_ids", "harvester")
 
-        response = self._fill_in_particular_status(response, available_rovers_ids, "available_rover_ids", "rover")
-        response = self._fill_in_particular_status(response, inactive_rovers_ids, "inactive_rover_ids", "rover")
-        response = self._fill_in_particular_status(response, broken_rovers_ids, "broken_rover_ids", "rover")
+        response = self._fill_in_particular_status(
+            response, available_rovers_ids, "available_rover_ids", "rover")
+        response = self._fill_in_particular_status(
+            response, inactive_rovers_ids, "inactive_rover_ids", "rover")
+        response = self._fill_in_particular_status(
+            response, broken_rovers_ids, "broken_rover_ids", "rover")
 
         if len(available_rovers_ids) == 1:
             avail_rover_id = available_rovers_ids[0]
@@ -137,7 +158,8 @@ class GoBotWrapper():
         logger.info(f"slots: {slots}")
         print("slots: ", slots, flush=True)
         if "_id" in response:
-            required_id = slots.get("number")  # re.search(r"[0-9]+", request_text)
+            # re.search(r"[0-9]+", request_text)
+            required_id = slots.get("number")
             print(required_id)
             if required_id is not None:
                 required_id = required_id[0]
@@ -147,7 +169,7 @@ class GoBotWrapper():
                 response = response.replace("harvester_status", status)
             else:
                 response = f"I can answer only about the following harvesters ids: " \
-                        f"{', '.join(self.DATABASE['harvesters'].keys())}."
+                    f"{', '.join(self.DATABASE['harvesters'].keys())}."
 
         response = response.replace('{', '').replace('}', '')
         return response
@@ -157,12 +179,20 @@ class GoBotWrapper():
             self.DATABASE, self.PREV_UPDATE_TIME = self._update_database()
 
         response = self._fill_harvesters_status_templates(response, slots)
-        
+
         return response
     # endregion storage interaction logic
 
 
 gobot = GoBotWrapper("dp_minimal_demo_dir")
+
+
+@app.route("/reset", methods=["GET"])
+def reset():
+    logger.info("resetting the gobot")
+    gobot.reset()
+    return ('', 204)
+
 
 @app.route("/respond", methods=["POST"])
 def respond():
@@ -174,21 +204,25 @@ def respond():
     confidences = []
 
     for dialog in dialogs:
-        sentence = dialog['human_utterances'][-1]['annotations'].get("spelling_preprocessing")
+        sentence = dialog['human_utterances'][-1]['annotations'].get(
+            "spelling_preprocessing")
         if sentence is None:
             logger.warning('Not found spelling preprocessing annotation')
             sentence = dialog['human_utterances'][-1]['text']
-    
+
         uttr_resp, conf = gobot(sentence)
         response = gobot.getNlg(uttr_resp)
 
         responses.append(response)
         confidences.append(conf)
-        
+
     total_time = time.time() - st_time
-    logger.info(f"harvesters_maintenance_gobot_skill exec time = {total_time:.3f}s")
+    logger.info(
+        f"harvesters_maintenance_gobot_skill exec time = {total_time:.3f}s")
 
     return jsonify(list(zip(responses, confidences)))
 
+
 if __name__ == "__main__":
+    reset()
     app.run(debug=False, host="0.0.0.0", port=3000)
