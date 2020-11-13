@@ -28,6 +28,14 @@
                 "response_formatter": "dp_formatters:base_skill_formatter",
                 "state_manager_method": "add_hypothesis"
             }
+        },
+        "response_selector": {
+            "connector": {
+                "protocol": "python",
+                "class_name": "ConfidenceResponseSelectorConnector"
+            },
+            "state_manager_method": "add_bot_utterance",
+            "previous_services": ["skills"]
         }
     },
     "connectors": {}
