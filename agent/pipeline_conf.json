@@ -18,8 +18,6 @@
             "state_manager_method": "add_bot_utterance_last_chance",
             "tags": ["timeout"]
         },
-        "annotators": {
-        },
         "skills": {
             "harvesters_maintenance_gobot_skill": {
                 "connector": {
@@ -28,8 +26,7 @@
                 },
                 "dialog_formatter": "dp_formatters:full_dialog",
                 "response_formatter": "dp_formatters:base_skill_formatter",
-                "state_manager_method": "add_hypothesis",
-                "previous_services": ["annotators"]
+                "state_manager_method": "add_hypothesis"
             }
         }
     },
