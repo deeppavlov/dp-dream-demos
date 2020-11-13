@@ -32,8 +32,6 @@
                 "previous_services": ["annotators"]
             }
         },
-        "response_annotators": {
-        },
         "response_selectors": {
             "trivial_response_selector": {
                 "connector": {
@@ -42,7 +40,7 @@
                 },
                 "dialog_formatter": "dp_formatters:full_dialog",
                 "response_formatter": "dp_formatters:base_response_selector_formatter_service",
-                "previous_services": ["response_annotators"],
+                "previous_services": ["skills"],
                 "state_manager_method": "add_bot_utterance"
             }
         }
