@@ -1,12 +1,16 @@
-# This Is The First AI Assistant Demo Derived From DeepPavlov Dream AI Assistant
+# This Is The Simple Dream AI Demo with Go-Bot-powered Goal-Oriented Skill
 
-It consists of two dummy skills and one actual skill from DeepPavlov Dream AI Assistant alongside with built-in rule based skill selector.
+It consists of one goal-oriented kill powered by Go-Bot from DeepPavlov.
+
 Runs with docker-compose
 
-## Files content
+## Key Files
 
-* **pipeline_conf.json** - example of pipeline configuration file
-* **db_conf.json** - db configuration, which works with docker-compose provided
+* **docker-compose.yml** - includes all services required to run this demo
+* **/agent/pipeline_conf.json** - DeepPavlov Agent pipeline configuration file
+* **/agent/db_conf.json** - db configuration, which works with docker-compose provided
+* **/skills/harvesters_maintenance_gobot_skill/** - actual goal-oriented skill powered by Go-Bot from DeepPavlov.
+* **/skills/harvesters_maintenance_gobot_skill/dp_minimal_demo_dir** - put the output of Go-Bot tutorial in here
 
 ## Requirements
 
