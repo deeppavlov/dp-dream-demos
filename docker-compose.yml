@@ -9,12 +9,6 @@ services:
       - 4242:4242
     tty: true
     command: python -m deeppavlov_agent.run -ch http_client --cors
-  spelling_preprocessing:
-    build:
-      context: annotators/spelling_preprocessing
-    command: gunicorn --workers=1 server:app -b 0.0.0.0:3001 --timeout=100
-    ports:
-      - 3001:3001
   mongo:
     command: mongod
     image: mongo:4.0.0
@@ -22,60 +16,13 @@ services:
       - 27017:27017
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-  rule_based_response_selector:
+  trivial_response_selector:
     build:
-      context: selectors/rule_based_response_selector
+      context: selectors/trivial_response_selector
     command: gunicorn --workers=1 server:app -b 0.0.0.0:3003
     volumes: []
     ports:
       - 3003:3003
-  nemo:
-    command: uvicorn main:app --host 0.0.0.0 --reload --port 4343
-    build:
-      context: nemo
-    depends_on:
-      - agent
-    ports:
-      - 4343:4343
-  emotion_classification:
-    build:
-      context: annotators/emotion_classification
-    command: python -m deeppavlov riseapi emo_bert.json -p 3004
-    ports:
-      - 3004:3004
-  program_y:
-    build:
-      context: skills/program-y
-    ports:
-      - 3005:3005
-  clone_tts:
-    command: uvicorn main:app --host 0.0.0.0 --reload --port 4344
-    build:
-      context: clone_tts
-    ports:
-      - 4344:4344
-    environment:
-      - CUDA_VISIBLE_DEVICES=0
-  entity_linking:
-    build:
-      args:
-        CONFIG: entity_linking.json
-        PORT: 3006
-        SRC_DIR: annotators/entity_linking
-      context: ./
-      dockerfile: common/Dockerfile
-    volumes:
-      - "~/.deeppavlov:/root/.deeppavlov"
-    ports:
-      - 3006:3006
-    environment:
-      - CUDA_VISIBLE_DEVICES=''
-  intent_catcher:
-    build:
-      context: ./annotators/intent_catcher/
-    ports:
-      - 3007:3007
-    command: gunicorn --workers=1 --name=catcher --bind 0.0.0.0:3007 --timeout=100 server:app
   harvesters_maintenance_gobot_skill:
     build:
       context: skills/harvesters_maintenance_gobot_skill
