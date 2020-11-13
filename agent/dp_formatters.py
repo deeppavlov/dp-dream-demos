@@ -33,6 +33,7 @@ def full_dialog(dialog: Dict):
 def base_skill_formatter(payload: Dict) -> Dict:
     return [{"text": payload[0], "confidence": payload[1]}]
 
+
 def simple_formatter_service(payload: List):
     '''
     Used by: punct_dialogs_formatter, intent_catcher_formatter, asr_formatter,
@@ -42,53 +43,20 @@ def simple_formatter_service(payload: List):
     return payload
 
 
-def entity_linking_formatter(payload: List):
-    response = []
-    for entity_name, wikidata_ids, id_types in zip(*payload):
-        item = {
-            'entity_name': entity_name,
-            'wikidata_ids': [
-                {
-                    "id": id,
-                    "instance_of": instance_of
-                }
-                for id, instance_of in zip(wikidata_ids, id_types)
-            ]
-        }
-        response.append(item)
-    return response
-
-
 def preproc_last_human_utt_dialog(dialog: Dict) -> Dict:
     # Used by: sentseg over human uttrs
     return [{'sentences': [dialog['human_utterances'][-1]['annotations']["spelling_preprocessing"]]}]
+
 
 def preproc_last_bot_utt_dialog(dialog: Dict) -> Dict:
     # Used by: sentseg over human uttrs
     return [{'sentences': [dialog['bot_utterances'][-1]['annotations']["spelling_preprocessing"]]}]
 
-def cobot_classifiers_formatter_service(payload: List):
-    # Used by: cobot_classifiers_formatter, sentiment_formatter
-    if len(payload) == 3:
-        return {"text": payload[0],
-                "confidence": payload[1],
-                "is_blacklisted": payload[2]}
-    elif len(payload) == 2:
-        return {"text": payload[0],
-                "confidence": payload[1]}
-    elif len(payload) == 1:
-        return {"text": payload[0]}
-    elif len(payload) == 0:
-        return {"text": []}
 
 def hypotheses_list(dialog: Dict) -> Dict:
     hypotheses = dialog["utterances"][-1]["hypotheses"]
     hypots = [h["text"] for h in hypotheses]
     return [{'sentences': hypots}]
-
-
-def programy_formatter_dialog(dialog: Dict) -> List:
-    return [{'sentences_batch': [[u['text'] for u in dialog['utterances'][-5:]]]}]
 
 
 def skill_with_attributes_formatter_service(payload: Dict):
