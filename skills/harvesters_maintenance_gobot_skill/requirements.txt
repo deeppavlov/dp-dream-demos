@@ -4,4 +4,4 @@ requests==2.22.0
 numpy==1.17.2
 sentry-sdk==0.12.3
 ruamel.yaml==0.15.100
-git+git://github.com/deepmipt/DeepPavlov@dev
+deeppavlov==0.13.0
