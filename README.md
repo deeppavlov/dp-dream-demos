@@ -1,4 +1,4 @@
-# This Is The Simple Dream AI Demo with Go-Bot-powered Goal-Oriented Skill
+# Simple Dream AI Demo with Single Go-Bot-powered Goal-Oriented Skill
 
 It consists of one goal-oriented kill powered by Go-Bot from DeepPavlov.
 
