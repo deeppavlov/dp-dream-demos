@@ -35,8 +35,10 @@ class GoBotWrapper():
             gobot_response.policy_prediction.predicted_action_ix]
         
         confidence = confidence.astype(float)
-        uttr_slots = self.gobot.pipe[-1][-1].nlu_manager.nlu(sentence).slots
-        return {"act": uttr_response_action, "slots": uttr_slots}, confidence
+        
+        uttr_nlu = self.gobot.pipe[-1][-1].nlu_manager.nlu(sentence)
+        uttr_slots, uttr_intents = uttr_nlu.slots, uttr_nlu.intents
+        return {"act": uttr_response_action, "slots": uttr_slots, "intents": utr_intents}, confidence
 
     def getNlg(self, gobot_response):
         act = gobot_response["act"][0]
@@ -211,6 +213,7 @@ def respond():
             sentence = dialog['human_utterances'][-1]['text']
 
         uttr_resp, conf = gobot(sentence)
+        intents = uttr_resp["intents"]
         response = gobot.getNlg(uttr_resp)
 
         responses.append(response)
